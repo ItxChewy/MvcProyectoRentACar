@@ -1,8 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using MvcProyectoRentACar.Data;
+using MvcProyectoRentACar.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<RepositorySesion>();
+builder.Services.AddTransient<RepositoryComprador>();
 
+string connectionString = builder.Configuration.GetConnectionString("SqlRentACar");
+builder.Services.AddDbContext<RentACarContext>
+    (options => options.UseSqlServer(connectionString));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

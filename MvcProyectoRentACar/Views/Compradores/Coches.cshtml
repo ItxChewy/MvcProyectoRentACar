@@ -1,0 +1,45 @@
+﻿@model List<VistaCoche>
+@{
+	int valor = 1;
+}
+<div class="container-fluid py-5">
+	<div class="container pt-5 pb-3">
+		<h1 class="display-1 text-primary text-center"></h1>
+		<h1 class="display-4 text-uppercase text-center mb-5">Elige tu coche</h1>
+		<form method="post">
+			<input type="hidden" name="valor" value="@valor" />
+			<button type="submit" class="btn btn-primary px-3">Filtrar por precio</button>
+		</form>
+		<div class="row">
+			@foreach (VistaCoche coche in Model)
+			{
+				<div class="col-lg-4 col-md-6 mb-2">
+					<div class="rent-item mb-4">
+						<img class="img-fluid mb-4" src="~/images/@coche.Imagen" />
+						<h4 class="text-uppercase mb-4">@coche.Marca @coche.Modelo</h4>
+						<div class="d-flex justify-content-center mb-4">
+							<div class="px-2  border-right">
+								<i class="bi bi-0-circle-fill"></i>
+								<span>@coche.Asientos</span>
+							</div>
+							<div class="px-2 border-left border-right">
+								<i class="bi bi-0-circle-fill"></i>
+								<span>@coche.Marcha</span>
+							</div>
+							<div class="px-2">
+								<i class="fa fa-road text-primary mr-1"></i>
+								<span>@coche.Kilometraje km</span>
+							</div>
+						</div>
+						<a class="btn btn-primary px-3" asp-action="DetailsCoche" asp-controller="Compradores" asp-route-idcoche="@coche.IdCoche">Alquilar</a>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+
+
+
+

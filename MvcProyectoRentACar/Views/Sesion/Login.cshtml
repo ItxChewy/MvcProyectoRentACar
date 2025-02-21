@@ -1,0 +1,26 @@
+﻿@* <div class="container my-template-container">
+    <form method="post" class="my-template-form">
+        <label class="my-template-label">Email</label>
+        <input type="text" name="email" class="form-control my-template-input" />
+        <label class="my-template-label">Contraseña</label>
+        <input type="password" name="password" class="form-control my-template-input" />
+        <br />
+        <button class="btn btn-danger my-template-button">Iniciar Sesion</button>
+    </form>
+
+    <h3 class="my-template-message" style="color:red">@ViewData["mensaje"]</h3>
+</div>
+ *@
+
+<div class="container">
+    <form method="post">
+        <label>Email</label>
+        <input type="text" name="email" class="form-control" />
+        <label class="my-template-label">Contraseña</label>
+        <input type="password" name="password" class="form-control" />
+        <br />
+        <button class="btn btn-danger">Iniciar Sesion</button>
+    </form>
+
+    <h3 style="color:red">@ViewData["mensaje"]</h3>
+</div>
