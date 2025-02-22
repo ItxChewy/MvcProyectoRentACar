@@ -37,15 +37,15 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task<VistaCoche> DetailsCocheAsync(int idcoche)
+        public async Task<Coche> DetailsCocheAsync(int idcoche)
         {
-            var consulta = from datos in this.context.VistaCoches
+            var consulta = from datos in this.context.Coches
                            where datos.IdCoche == idcoche
                            select datos;
             return await consulta.FirstOrDefaultAsync();
         }
         public async Task InsertCocheAsync
-            (string marca, string modelo, string matricula, string imagen,IFormFile fichero, int asientos, int idmarchas,
+            (string marca, string modelo, string matricula,IFormFile fichero, int asientos, int idmarchas,
             int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
             decimal preciokilometros, decimal precioilimitado)
         {
@@ -64,7 +64,7 @@ namespace MvcProyectoRentACar.Repositories
                 new SqlParameter("@MARCA", marca),
                 new SqlParameter("@MODELO", modelo),
                 new SqlParameter("@MATRICULA", matricula),
-                new SqlParameter("@IMAGEN", imagen),
+                new SqlParameter("@IMAGEN", fileName),
                 new SqlParameter("@ASIENTOS", asientos),
                 new SqlParameter("@IDMARCHAS", idmarchas),
                 new SqlParameter("@IDGAMA", idgama),

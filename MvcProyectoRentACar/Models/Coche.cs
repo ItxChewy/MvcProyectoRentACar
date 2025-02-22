@@ -51,10 +51,10 @@ namespace MvcProyectoRentACar.Models
         [Column("IDVENDEDOR")]
         public int IdVendedor { get; set; }
 
-        [Column("PRECIOKILOMETROS")]
+        [Column("PRECIOKILOMETROS", TypeName = "decimal(10,2)")]
         public decimal PrecioKilometros { get; set; }
 
-        [Column("PRECIOILIMITADO")]
+        [Column("PRECIOILIMITADO", TypeName = "decimal(10,2)")]
         public decimal PrecioIlimitado { get; set; }
     }
 }

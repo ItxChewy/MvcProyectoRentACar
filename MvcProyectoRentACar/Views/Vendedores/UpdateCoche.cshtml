@@ -1,2 +1,48 @@
-﻿@model VistaCoche
-<h1>update</h1>
+﻿@model Coche
+@{
+	List<Gama> gamas = ViewData["gamas"] as List<Gama>;
+}
+<div class="container-fluid pt-5">
+	<div class="container pt-5 pb-3">
+		<h1 class="display-4 text-uppercase mb-5">@Model.Marca @Model.Modelo</h1>
+		<div class="row align-items-center pb-2">
+			<div class="col-lg-6 mb-4">
+				<img class="img-fluid" src="~/images/@Model.Imagen">
+			</div>
+		</div>
+		<div class="card my-4">
+			<div class="card-header">
+				<h1>Modifica la gama y/o el precio</h1>
+			</div>
+			<div class="card-body">
+				<form method="post">
+					<div class="row mb-3">
+						<div class="col-md-4 input-group">
+							<label class="form-label input-group-text">Gama:</label>
+							<select name="idgama" class="form-select" >
+								@foreach (Gama gama in gamas)
+								{
+									<option value="@gama.IdGama" selected="@(gama.IdGama == Model.IdGama)">@gama.Nivel</option>
+
+								}
+							</select>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-md-6 input-group">
+							<label class="form-label input-group-text">Tarifa por 1200km:</label>
+							<input type="text" name="preciokilometros" class="form-control" value="@Model.PrecioKilometros.ToString("0.##")"/>
+						</div>
+						<div class="col-md-6 input-group">
+							<label class="form-label input-group-text">Tarifa km Ilimitados:</label>
+							<input type="text" name="precioilimitado" class="form-control" value="@Model.PrecioIlimitado.ToString("0.##")" />
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary">Insertar Coche</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
