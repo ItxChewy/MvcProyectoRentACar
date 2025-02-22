@@ -25,6 +25,7 @@ namespace MvcProyectoRentACar.Controllers
 
             if (usuario != null)
             {
+                HttpContext.Session.SetInt32("rol", usuario.IdRolUsuario);
                 return RedirectToAction("Index", "Home");
             }
             else

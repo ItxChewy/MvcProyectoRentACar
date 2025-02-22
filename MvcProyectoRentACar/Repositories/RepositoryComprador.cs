@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MvcProyectoRentACar.Data;
+using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
 
 namespace MvcProyectoRentACar.Repositories
@@ -7,9 +8,11 @@ namespace MvcProyectoRentACar.Repositories
     public class RepositoryComprador
     {
         private RentACarContext context;
+        
         public RepositoryComprador(RentACarContext context)
         {
             this.context = context;
+            
         }
 
         public async Task<List<VistaCoche>> FindAllCochesAsync()
