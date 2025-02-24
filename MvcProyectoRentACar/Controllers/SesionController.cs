@@ -35,5 +35,31 @@ namespace MvcProyectoRentACar.Controllers
                 return View();
             }
         }
+
+        public async Task<IActionResult> Register()
+        {
+            ViewData["roles"] = await this.repo.GetRolesAsync();
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register
+            (string nombre, string email, string password, int idrol, string telefono
+            , string? apellidos = null, string? dni = null, string? carnet = null
+             , DateTime? fechanacimiento = null, string? direccion = null, string? passpecial = null
+            , string? nombreempresa = null)
+        {
+            bool isRegistered = await this.repo.RegisterUsuarioAsync(nombre,email, password, idrol, telefono, apellidos, dni, carnet, fechanacimiento, direccion, passpecial,nombreempresa);
+            if (isRegistered)
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                ViewData["MENSAJE"] = "Error al registrar el usuario. Por favor, intente nuevamente.";
+                ViewData["roles"] = await this.repo.GetRolesAsync();
+                return View();
+            }
+        }
     }
 }

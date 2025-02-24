@@ -20,6 +20,7 @@ namespace MvcProyectoRentACar.Data
         public DbSet<Gama> Gamas { get; set; }
         public DbSet<EstadoReserva> EstadoReservas { get; set; }
         public DbSet<Reserva> Reservas { get; set; }
+        public DbSet<Rol> Roles { get; set; }
 
 
     }

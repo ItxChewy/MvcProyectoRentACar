@@ -18,6 +18,11 @@ namespace MvcProyectoRentACar.Models
         [Column("IDROL")]
         public int IdRolUsuario { get; set; }
 
+        [Column("SALT")]
+        public string Salt { get; set; }
+        [Column("PASS")]
+        public byte[] PassBytes { get; set; }
+
         public virtual Vendedor Vendedor { get; set; }
 
         public virtual Comprador Comprador { get; set; }
