@@ -70,5 +70,11 @@ namespace MvcProyectoRentACar.Controllers
                 return View(coche);
             }
         }
+
+        public async Task<IActionResult> DeleteCoche(int idcoche)
+        {
+            await this.repo.DeleteCocheAsync(idcoche);
+            return RedirectToAction("Coches");
+        }
     }
 }

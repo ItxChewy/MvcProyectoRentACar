@@ -55,11 +55,12 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.ToListAsync();
         }
 
+
         public async Task<bool> RegisterUsuarioAsync
             (string nombre, string email,string password, int idrol,string telefono
-            , string ?  apellidos = null ,string ? dni = null, string ? carnet=null
-             ,DateTime ? fechanacimiento = null,string ? direccion = null,string ? passpecial = null
-            ,string ? nombreempresa = null)
+            , string?  apellidos ,string? dni, string? carnet
+             ,DateTime? fechanacimiento,string? direccion,string? passpecial
+            ,string? nombreempresa)
         {
             Usuario usuario = new Usuario();
             usuario.IdUsuario = await this.GetMaxIdUser();

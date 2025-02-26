@@ -54,11 +54,16 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-danger">Registrar</button>
+                <div class="row mb-3">
+                    <button type="submit" class="btn btn-primary ">Registrarse</button>
+                </div>
             </form>
             <h3>@ViewData["mensaje"]</h3>
         </div>
     </div>
+    <a asp-action="Login" asp-controller="Sesion">
+        <i class="fa-solid fa-left-long"></i> Atrás
+    </a>
 </div>
 
 <script>
@@ -118,5 +123,4 @@
     // Trigger change event to set default fields
     document.getElementById('idrol').dispatchEvent(new Event('change'));
 </script>
-
 

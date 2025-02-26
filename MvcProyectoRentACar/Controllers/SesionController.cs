@@ -13,6 +13,11 @@ namespace MvcProyectoRentACar.Controllers
             this.repo = repo;
         }
 
+        public IActionResult LogOut()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index","Home");
+        }
         public IActionResult Login()
         {
             return View();
@@ -45,9 +50,9 @@ namespace MvcProyectoRentACar.Controllers
         [HttpPost]
         public async Task<IActionResult> Register
             (string nombre, string email, string password, int idrol, string telefono
-            , string? apellidos = null, string? dni = null, string? carnet = null
-             , DateTime? fechanacimiento = null, string? direccion = null, string? passpecial = null
-            , string? nombreempresa = null)
+            , string? apellidos , string? dni , string? carnet
+             , DateTime? fechanacimiento , string? direccion, string? passpecial
+            , string? nombreempresa)
         {
             bool isRegistered = await this.repo.RegisterUsuarioAsync(nombre,email, password, idrol, telefono, apellidos, dni, carnet, fechanacimiento, direccion, passpecial,nombreempresa);
             if (isRegistered)
