@@ -21,7 +21,7 @@ builder.Services.AddTransient<RepositorySesion>();
 builder.Services.AddTransient<RepositoryComprador>();
 builder.Services.AddTransient<RepositoryVendedor>();
 
-string connectionString = builder.Configuration.GetConnectionString("SqlRentACarPortatil");
+string connectionString = builder.Configuration.GetConnectionString("SqlRentACarCasa");
 builder.Services.AddDbContext<RentACarContext>
     (options => options.UseSqlServer(connectionString));
 var app = builder.Build();

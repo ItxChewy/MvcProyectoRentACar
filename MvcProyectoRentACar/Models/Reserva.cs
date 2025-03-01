@@ -30,6 +30,9 @@ namespace MvcProyectoRentACar.Models
         [ForeignKey("EstadoReserva")]
         [Column("IDESTADORESERVA")]
         public int IdEstadoReserva { get; set; }
+
+        [Column("PRECIO", TypeName = "decimal(10,2)")]
+        public double Precio { get; set; }
         public virtual EstadoReserva EstadoReserva { get; set; }
     }
 }

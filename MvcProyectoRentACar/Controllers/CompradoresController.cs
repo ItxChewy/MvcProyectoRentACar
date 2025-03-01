@@ -39,5 +39,24 @@ namespace MvcProyectoRentACar.Controllers
             VistaCoche coche = await this.repo.GetCocheAsync(idcoche);
             return View(coche);
         }
+
+        [HttpPost]
+        public async Task<IActionResult>DetailsCoche(int idcoche
+            , DateTime fechainicio, DateTime fechafin,double valor)
+        {
+            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            bool disponible = await this.repo.ComprobarDisponibilidadCocheAsync(idcoche, fechainicio, fechafin);
+            if (disponible)
+            {
+                await this.repo.CompraCocheAsync(idusuario,idcoche,fechainicio,fechafin,valor);
+                return RedirectToAction("Coches");
+            }
+            else
+            {
+                VistaCoche coche = await this.repo.GetCocheAsync(idcoche);
+                Console.WriteLine("fecha ocupada");
+                return View(coche);
+            }
+        }
     }
 }

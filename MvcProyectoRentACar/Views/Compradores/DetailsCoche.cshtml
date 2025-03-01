@@ -8,12 +8,12 @@
 			</div>
 			<div class="col-lg-6 mb-4">
 				<h4 class="mb-2">@Model.PrecioKilometros /Dia O @Model.PrecioIlimitado /Dia </h4>
-				<p>(Explicando tarifas)Tempor erat elitr at rebum at at clita aliquyam consetetur. Diam dolor diam ipsum et, tempor voluptua sit consetetur sit. Aliquyam diam amet diam et eos sadipscing labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor consetetur takimata eirmod, dolores takimata consetetur invidunt</p>
+				<p>En RENTACAR ofrecemos dos tipos de tarifas para el alquiler de vehículos. La <strong>Tarifa Estándar</strong> incluye un límite de 1,200 km; en caso de superar esta distancia, se aplicará un cargo adicional por cada kilómetro extra recorrido, cuyo cálculo se realizará al momento de la devolución del vehículo. Por otro lado, la <strong>Tarifa Ilimitada </strong>permite al cliente recorrer cualquier distancia sin restricciones, a cambio de un costo fijo superior. Al finalizar el período de alquiler, el kilometraje será verificado para determinar si corresponde algún cargo adicional en la Tarifa Estándar.</p>
 			</div>
 		</div>
 		<div class="row mt-n3 mt-lg-0 pb-4">
 			<div class="col-md-3 col-6 mb-2">
-				<i class="fa fa-car text-primary mr-2"></i>
+				<i class="fa fa-chair text-primary mr-2"></i>
 				<span>Asientos: @Model.Asientos</span>
 			</div>
 			<div class="col-md-3 col-6 mb-2">
@@ -25,15 +25,15 @@
 				<span>Kilometros: @Model.Kilometraje</span>
 			</div>
 			<div class="col-md-3 col-6 mb-2">
-				<i class="fa fa-eye text-primary mr-2"></i>
+				<i class="fa fa-door-closed text-primary mr-2"></i>
 				<span>Puertas: @Model.Puertas</span>
 			</div>
 			<div class="col-md-3 col-6 mb-2">
-				<i class="fa fa-car text-primary mr-2"></i>
+				<i class="fa fa-gas-pump text-primary mr-2"></i>
 				<span>Combustible : @Model.Combustible</span>
 			</div>
 			<div class="col-md-3 col-6 mb-2">
-				<i class="fa fa-cogs text-primary mr-2"></i>
+				<i class="fa fa-dollar-sign text-primary mr-2"></i>
 				<span>Gama: @Model.Gama</span>
 			</div>
 		</div>
@@ -41,92 +41,106 @@
 </div>
 <!-- Detail End -->
 <!-- Car Booking Start -->
-<div class="container-fluid pb-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-8">
-				<h2 class="mb-4">Booking Detail</h2>
-				<div class="mb-5">
-					<div class="row">
-						<div class="col-6 form-group">
-							<select class="custom-select px-4" style="height: 50px;">
-								<option selected>Pickup Location</option>
-								<option value="1">Location 1</option>
-								<option value="2">Location 2</option>
-								<option value="3">Location 3</option>
-							</select>
-						</div>
-						<div class="col-6 form-group">
-							<select class="custom-select px-4" style="height: 50px;">
-								<option selected>Drop Location</option>
-								<option value="1">Location 1</option>
-								<option value="2">Location 2</option>
-								<option value="3">Location 3</option>
-							</select>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-6 form-group">
-							<div class="date" id="date2" data-target-input="nearest">
-								<input type="text" class="form-control p-4 datetimepicker-input" placeholder="Pickup Date"
-									   data-target="#date2" data-toggle="datetimepicker" />
+<form method="post">
+	<div class="container-fluid pb-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="mb-3">
+						<input name="idcoche" value="@Model.IdCoche" hidden />
+						<input name="valor" id="valorInput" hidden />
+						<div class="row">
+							<div class="col-6 form-group">
+								<div id="date1" data-target-input="nearest">
+									<h4>Fecha de recogida</h4>
+									<input type="date" class="form-control p-4" placeholder="Selecciona Fecha"
+										   data-target="#date1" name="fechainicio" id="fechainicio" onchange="checkDates()" />
+								</div>
 							</div>
-						</div>
-						<div class="col-6 form-group">
-							<div class="time" id="time2" data-target-input="nearest">
-								<input type="text" class="form-control p-4 datetimepicker-input" placeholder="Pickup Time"
-									   data-target="#time2" data-toggle="datetimepicker" />
+							<div class="col-6 form-group">
+								<div id="date2" data-target-input="nearest">
+									<h4>Fecha de entrega</h4>
+									<input type="date" class="form-control p-4" placeholder="Selecciona Fecha"
+										   data-target="#date2" name="fechafin" id="fechafin" onchange="checkDates()" />
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-6 form-group">
-							<select class="custom-select px-4" style="height: 50px;">
-								<option selected>Select Adult</option>
-								<option value="1">Adult 1</option>
-								<option value="2">Adult 2</option>
-								<option value="3">Adult 3</option>
-							</select>
+					<div class="mb-5">
+						<h4>Kilometraje</h4>
+						<div class="preciokilometros-option mb-3 form-group border border-secondary rounded p-3" onclick="selectOption(this)">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" value="@Model.PrecioKilometros" name="preciokilometros" id="km2700" onchange="calculateValue()">
+								<label class="form-check-label" for="km2700">
+									<strong>1200 km</strong><br>
+									<small>+2,50 € / por cada km adicional</small>
+								</label>
+							</div>
 						</div>
-						<div class="col-6 form-group">
-							<select class="custom-select px-4" style="height: 50px;">
-								<option selected>Select Child</option>
-								<option value="1">Child 1</option>
-								<option value="2">Child 2</option>
-								<option value="3">Child 3</option>
-							</select>
+						<div class="preciokilometros-option selected mb-3 border border-primary rounded p-3 bg-light" onclick="selectOption(this)">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" value="@Model.PrecioIlimitado" name="preciokilometros" id="kmIlimitado" checked onchange="calculateValue()">
+								<label class="form-check-label" for="kmIlimitado">
+									<strong>Kilometraje ilimitado</strong><br>
+									<small>Todos los kilómetros están incluidos en el precio</small>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<textarea class="form-control py-3 px-4" rows="3" placeholder="Special Request" required="required"></textarea>
 					</div>
 				</div>
-			</div>
-			<div class="col-lg-4">
-				<div class="bg-secondary p-5 mb-5">
-					<h2 class="text-primary mb-4">Payment</h2>
-					<div class="form-group">
-						<div class="custom-control custom-radio">
-							<input type="radio" class="custom-control-input" name="payment" id="paypal">
-							<label class="custom-control-label" for="paypal">Paypal</label>
-						</div>
+				<div class="col-lg-4">
+					<div class="bg-secondary p-5 mb-5">
+						<h2 class="text-primary mb-4">Reservar</h2>
+						<button type="submit" class="btn btn-block btn-primary py-3" id="reservarBtn" style="display: none;">Reservar por : <span id="valor">0</span> €</button>
 					</div>
-					<div class="form-group">
-						<div class="custom-control custom-radio">
-							<input type="radio" class="custom-control-input" name="payment" id="directcheck">
-							<label class="custom-control-label" for="directcheck">Direct Check</label>
-						</div>
-					</div>
-					<div class="form-group mb-4">
-						<div class="custom-control custom-radio">
-							<input type="radio" class="custom-control-input" name="payment" id="banktransfer">
-							<label class="custom-control-label" for="banktransfer">Bank Transfer</label>
-						</div>
-					</div>
-					<button class="btn btn-block btn-primary py-3">Reserve Now</button>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- Car Booking End -->
+</form>
+
+<script>
+	function selectOption(element) {
+		document.querySelectorAll('.preciokilometros-option').forEach(el => {
+			el.classList.remove('selected', 'border-primary', 'bg-light');
+			el.classList.add('border-secondary');
+		});
+		element.classList.remove('border-secondary');
+		element.classList.add('selected', 'border-primary', 'bg-light');
+		element.querySelector('input').checked = true;
+		calculateValue();
+	}
+
+	function checkDates() {
+		const fechainicio = document.getElementById('fechainicio').value;
+		const fechafin = document.getElementById('fechafin').value;
+		const reservarBtn = document.getElementById('reservarBtn');
+
+		if (fechainicio && fechafin) {
+			reservarBtn.style.display = 'block';
+			calculateValue();
+		} else {
+			reservarBtn.style.display = 'none';
+		}
+	}
+
+		function calculateValue() {
+		const fechainicio = document.getElementById('fechainicio').value;
+		const fechafin = document.getElementById('fechafin').value;
+		const preciokilometros = document.querySelector('input[name="preciokilometros"]:checked').value.replace(',', '.');
+		const valorSpan = document.getElementById('valor');
+		const valorInput = document.getElementById('valorInput');
+
+		if (fechainicio && fechafin) {
+			const date1 = new Date(fechainicio);
+			const date2 = new Date(fechafin);
+			const diffTime = Math.abs(date2 - date1);
+			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include the start day
+
+			const valor = diffDays * parseFloat(preciokilometros);
+			valorSpan.textContent = valor.toFixed(2).replace('.', ',');
+			valorInput.value = valor.toFixed(2).replace('.', ',');
+		}
+	}
+</script>
+
