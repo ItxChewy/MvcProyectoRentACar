@@ -45,7 +45,7 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
         public async Task InsertCocheAsync
-            (string marca, string modelo, string matricula,IFormFile fichero, int asientos, int idmarchas,
+            (string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
             int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
             decimal preciokilometros, decimal precioilimitado)
         {
@@ -56,7 +56,7 @@ namespace MvcProyectoRentACar.Repositories
             {
                 await fichero.CopyToAsync(stream);
             }
- 
+
             string sql = "SP_INSERT_COCHE @MARCA, @MODELO, @MATRICULA, @IMAGEN, @ASIENTOS, @IDMARCHAS, " +
                 "@IDGAMA, @KILOMETRAJE, @PUERTAS, @IDCOMBUSTIBLE, @IDVENDEDOR, @PRECIOKILOMETROS, @PRECIOILIMITADO";
             var parametros = new[]
@@ -128,11 +128,64 @@ namespace MvcProyectoRentACar.Repositories
                            select datos;
             return await consulta.ToListAsync();
         }
-        public async Task <List<Combustible>> GetCombustiblesAsync()
+        public async Task<List<Combustible>> GetCombustiblesAsync()
         {
             var consulta = from datos in this.context.Combustibles
                            select datos;
             return await consulta.ToListAsync();
+        }
+
+        public async Task<List<EstadoReserva>> GetEstadoReservaAsync()
+        {
+            var consulta = from datos in this.context.EstadoReservas
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<List<Reserva>> GetReservasPorCocheAsync(int idcoche)
+        {
+            var consulta = from datos in this.context.Reservas
+                           where datos.IdCoche == idcoche
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+        public async Task<List<Reserva>> GetReservasNoFinalizadasPorCocheAsync(int idcoche)
+        {
+            var consulta = from datos in this.context.Reservas
+                           where datos.IdCoche == idcoche && datos.IdEstadoReserva != 2
+                           orderby datos.FechaInicio
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<Reserva> GetReservaAsync(int idreserva)
+        {
+            var consulta = from datos in this.context.Reservas
+                           where datos.IdReserva == idreserva
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task CambiarAEstadoActivoReservaAsync(int idreserva)
+        {
+            Reserva res = await this.GetReservaAsync(idreserva);
+            var activeReservations = await this.context.Reservas
+                            .Where(r => r.IdCoche == res.IdCoche && r.IdEstadoReserva == 1)
+                            .ToListAsync();
+
+            if (activeReservations.Any())
+            {
+                throw new Exception("Ya existe una reserva activa para este coche");
+            }
+
+            res.IdEstadoReserva = 1;
+            await this.context.SaveChangesAsync();
+        }
+        public async Task CambiarAEstadoFinalizadoReservaAsync(int idreserva)
+        {
+            Reserva res = await this.GetReservaAsync(idreserva);
+            res.IdEstadoReserva = 2;
+            await this.context.SaveChangesAsync();
         }
     }
 }

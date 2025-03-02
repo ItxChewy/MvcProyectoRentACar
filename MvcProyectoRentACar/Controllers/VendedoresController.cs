@@ -22,6 +22,34 @@ namespace MvcProyectoRentACar.Controllers
             return View(coches);
         }
 
+        public async Task<IActionResult> ManageCoche(int idcoche)
+        {
+            ViewData["coche"] = await this.repo.DetailsCocheAsync(idcoche);
+            ViewData["estado"] = await this.repo.GetEstadoReservaAsync();
+            List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
+            return View(reservas);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageCoche(int idcoche,int? setactive , int? finalizado)
+        {
+            ViewData["coche"] = await this.repo.DetailsCocheAsync(idcoche);
+            ViewData["estado"] = await this.repo.GetEstadoReservaAsync();
+            
+            if (setactive != null)
+            {
+                await this.repo.CambiarAEstadoActivoReservaAsync((int)setactive);
+                List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
+                return View(reservas);
+            }
+            else
+            {
+                await this.repo.CambiarAEstadoFinalizadoReservaAsync((int)finalizado);
+                List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
+                return View(reservas);
+            }
+        }
+
         public async Task<IActionResult> InsertCoche()
         {
             ViewData["marchas"] = await this.repo.GetMarchasAsync();
