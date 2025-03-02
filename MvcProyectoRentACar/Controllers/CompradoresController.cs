@@ -36,7 +36,7 @@ namespace MvcProyectoRentACar.Controllers
 
         public async Task<IActionResult> DetailsCoche(int idcoche)
         {
-            VistaCoche coche = await this.repo.GetCocheAsync(idcoche);
+            VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
             return View(coche);
         }
 
@@ -53,10 +53,17 @@ namespace MvcProyectoRentACar.Controllers
             }
             else
             {
-                VistaCoche coche = await this.repo.GetCocheAsync(idcoche);
+                VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
                 Console.WriteLine("fecha ocupada");
                 return View(coche);
             }
+        }
+
+        public async Task<IActionResult> Compras()
+        {
+            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario);
+            return View(compras);
         }
     }
 }

@@ -72,17 +72,14 @@
 					<div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
 						<div class="navbar-nav ml-auto py-0">
 							<a class="nav-item nav-link" asp-action="Index" asp-controller="Home">Home</a>
-							<a href="about.html" class="nav-item nav-link">About</a>
-							<a href="service.html" class="nav-item nav-link">Service</a>
 							<a class="nav-item nav-link" asp-action="Coches" asp-controller="Compradores">Coches</a>
-							<div class="nav-item dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-								<div class="dropdown-menu rounded-0 m-0">
-									<a href="team.html" class="dropdown-item">The Team</a>
-									<a href="testimonial.html" class="dropdown-item">Testimonial</a>
-								</div>
-							</div>
-							<a asp-action="Login" asp-controller="Sesion" class="nav-item nav-link">Iniciar Sesión</a>
+							@if(Context.Session.GetInt32("rol") == null){
+								<a asp-action="Login" asp-controller="Sesion" class="nav-item nav-link">Iniciar Sesión</a>
+							}else{
+								<a asp-action="Compras" asp-controller="Compradores" class="nav-item nav-link">Mis compras</a>
+								<a asp-action="LogOut" asp-controller="Sesion" class="nav-item nav-link">Cerrar Sesion</a>
+							}
+							
 						</div>
 					</div>
 				</nav>

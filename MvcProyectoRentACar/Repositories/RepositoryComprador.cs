@@ -42,9 +42,17 @@ namespace MvcProyectoRentACar.Repositories
 
         }
 
-        public async Task<VistaCoche> GetCocheAsync(int idcoche)
+        public async Task<VistaCoche> GetVistaCocheAsync(int idcoche)
         {
             var consulta = from datos in this.context.VistaCoches
+                           where datos.IdCoche == idcoche
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task<Coche> GetCocheAsync(int idcoche)
+        {
+            var consulta = from datos in this.context.Coches
                            where datos.IdCoche == idcoche
                            select datos;
             return await consulta.FirstOrDefaultAsync();
@@ -89,6 +97,42 @@ namespace MvcProyectoRentACar.Repositories
                                   select reserva).ToListAsync();
 
             return !reservas.Any();
+        }
+
+        public async Task<List<EstadoReserva>> GetEstadoReservaAsync()
+        {
+            var consulta = from datos in this.context.EstadoReservas
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<List<Compra>> GetComprasUsuarioAsync(int idusuario)
+        {
+            List<Reserva> reservas = await (from datos in this.context.Reservas
+                                            where datos.IdUsuario == idusuario
+                                            select datos).ToListAsync();
+            List<Compra> compras = new List<Compra>();
+            List<EstadoReserva> estadoreserva = await this.GetEstadoReservaAsync();
+            foreach (Reserva reserva in reservas)
+            {
+                Coche coche = await this.GetCocheAsync(reserva.IdCoche);
+
+                Compra compra = new Compra();
+                compra.IdCoche = coche.IdCoche;
+                compra.Marca = coche.Marca;
+                compra.Modelo = coche.Modelo;
+                compra.Imagen = coche.Imagen;
+                compra.FechaInicio = reserva.FechaInicio;
+                compra.FechaFin = reserva.FechaFin;
+                compra.Precio = reserva.Precio;
+                var estado = estadoreserva.FirstOrDefault(e => e.IdEstadoReserva == reserva.IdEstadoReserva);
+                if (estado != null)
+                {
+                    compra.EstadoReserva = estado.EstadoDescripcion;
+                }
+                compras.Add(compra);
+            }
+            return compras;
         }
 
     }
