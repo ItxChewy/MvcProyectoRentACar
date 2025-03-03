@@ -87,13 +87,13 @@ namespace MvcProyectoRentACar.Controllers
 
         [HttpPost]
         public async Task<IActionResult>DetailsCoche(int idcoche
-            , DateTime fechainicio, DateTime fechafin,double valor)
+            , DateTime fechainicio, DateTime fechafin,double valor,bool kilometraje)
         {
             int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
             bool disponible = await this.repo.ComprobarDisponibilidadCocheAsync(idcoche, fechainicio, fechafin);
             if (disponible)
             {
-                await this.repo.CompraCocheAsync(idusuario,idcoche,fechainicio,fechafin,valor);
+                await this.repo.CompraCocheAsync(idusuario,idcoche,fechainicio,fechafin,valor,kilometraje);
                 return RedirectToAction("Coches");
             }
             else

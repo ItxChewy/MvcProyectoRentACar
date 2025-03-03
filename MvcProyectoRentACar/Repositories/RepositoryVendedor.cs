@@ -142,6 +142,14 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.ToListAsync();
         }
 
+        public async Task<List<Reserva>> GetReservasKilometrajeAsync()
+        {
+            var consulta = from datos in this.context.Reservas
+                           where datos.Kilometraje == true 
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
         public async Task<List<Reserva>> GetReservasPorCocheAsync(int idcoche)
         {
             var consulta = from datos in this.context.Reservas
@@ -187,5 +195,7 @@ namespace MvcProyectoRentACar.Repositories
             res.IdEstadoReserva = 2;
             await this.context.SaveChangesAsync();
         }
+
+      
     }
 }

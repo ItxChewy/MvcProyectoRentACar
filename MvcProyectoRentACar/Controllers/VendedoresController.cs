@@ -104,5 +104,11 @@ namespace MvcProyectoRentACar.Controllers
             await this.repo.DeleteCocheAsync(idcoche);
             return RedirectToAction("Coches");
         }
+
+        public async Task<IActionResult> ComprobarKilometraje()
+        {
+            List<Reserva> reservas = await this.repo.GetReservasKilometrajeAsync();
+            return View(reservas);
+        }
     }
 }

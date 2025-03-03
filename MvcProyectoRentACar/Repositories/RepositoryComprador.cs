@@ -58,7 +58,7 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task CompraCocheAsync(int idusuario,int idcoche,DateTime fechainicio, DateTime fechafin, double precio)
+        public async Task CompraCocheAsync(int idusuario,int idcoche,DateTime fechainicio, DateTime fechafin, double precio,bool kilometraje)
         {
             //se comprueba en el controller si ese coche esta disponible 
             int idReserva = 1;
@@ -74,6 +74,7 @@ namespace MvcProyectoRentACar.Repositories
             res.FechaInicio = fechainicio;
             res.FechaFin = fechafin;
             res.Precio = precio;
+            res.Kilometraje = kilometraje;
             if(DateTime.Now.Date == fechainicio.Date)
             {
                 res.IdEstadoReserva = 1;

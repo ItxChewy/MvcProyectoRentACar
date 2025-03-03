@@ -33,6 +33,9 @@ namespace MvcProyectoRentACar.Models
 
         [Column("PRECIO", TypeName = "decimal(10,2)")]
         public double Precio { get; set; }
+
+        [Column("KILOMETRAJE")]
+        public bool Kilometraje { get; set; }
         public virtual EstadoReserva EstadoReserva { get; set; }
     }
 }
