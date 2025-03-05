@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Repositories;
 
@@ -62,12 +63,16 @@ namespace MvcProyectoRentACar.Controllers
         [HttpPost]
         public async Task<IActionResult> InsertCoche(string marca, string modelo, string matricula,IFormFile fichero, int asientos, int idmarchas,
             int idgama, int kilometraje, int puertas, int idcombustible,
-            decimal preciokilometros, decimal precioilimitado)
+            string preciokilometros, string precioilimitado)
         {
             int idvendedor = (int)HttpContext.Session.GetInt32("usuarioactual");
 
+            decimal kilometrossanize = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
+            decimal ilimitadosanized = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
+             
+
             await this.repo.InsertCocheAsync(marca, modelo, matricula, fichero, asientos, idmarchas, idgama, kilometraje
-                , puertas, idcombustible, idvendedor, preciokilometros, precioilimitado);
+                , puertas, idcombustible, idvendedor, kilometrossanize, ilimitadosanized);
 
             return RedirectToAction("Coches");
         }

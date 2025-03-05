@@ -146,6 +146,7 @@ namespace MvcProyectoRentACar.Repositories
         {
             var consulta = from datos in this.context.Reservas
                            where datos.Kilometraje == true 
+                           orderby datos.FechaFin ascending
                            select datos;
             return await consulta.ToListAsync();
         }
