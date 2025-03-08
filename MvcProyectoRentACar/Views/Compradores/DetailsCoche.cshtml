@@ -39,6 +39,11 @@
 		</div>
 	</div>
 </div>
+<div class="container-fluid pt-5 mb-3">
+	<div class="container">
+		<div id="reservationCalendar"></div>
+	</div>
+</div>
 <!-- Detail End -->
 <!-- Car Booking Start -->
 <form method="post">
@@ -100,7 +105,62 @@
 	</div>
 </form>
 
+
+
+
+<style>
+	#reservationCalendar {
+
+		margin: auto;
+		font-size: 0.8rem; /* Reducir el tamaño de fuente */
+	}
+
+	.fc-daygrid-day {
+		min-height: 30px; /* Ajustar altura de los días */
+	}
+</style>
 <script>
+		document.addEventListener('DOMContentLoaded', function () {
+		var calendarEl = document.getElementById('reservationCalendar');
+		var calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: 'dayGridMonth',
+			locale: 'es', // Español
+			firstDay: 1, // La semana comienza el lunes
+			headerToolbar: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'dayGridMonth'
+			},
+			buttonText: {
+				today: 'Hoy',
+				dayGridMonth: 'Mes',
+			},
+			events: function (fetchInfo, successCallback, failureCallback) {
+				fetch(`/Compradores/GetReservasPorCocheComprador?idcoche=@Model.IdCoche`)
+					.then(response => response.json())
+					.then(data => {
+						var backgroundEvents = data.map(event => ({
+							start: event.start, // Fecha de inicio
+							end: event.end,     // Fecha de fin
+							display: 'background', // Evento de fondo
+							backgroundColor: 'rgba(255, 0, 0, 0.5)' // Rojo semi-transparente
+						}));
+						successCallback(backgroundEvents);
+					})
+					.catch(error => {
+						console.error("Error cargando eventos:", error);
+						failureCallback(error);
+					});
+			},
+			height: 350, // Reducir altura
+			contentHeight: 350,
+			aspectRatio: 1.5
+		});
+
+		calendar.render();
+	});
+
+
 	function selectOption(element, isLimited) {
 		document.querySelectorAll('.preciokilometros-option').forEach(el => {
 			el.classList.remove('selected', 'border-primary', 'bg-light');

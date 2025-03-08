@@ -32,6 +32,8 @@ namespace MvcProyectoRentACar.Models
 
         [Column("FECHANACIMIENTO")]
         public DateTime FechaNacimiento { get; set; }
+        [Column("MONEDERO",TypeName = "decimal(10,2)")]
+        public decimal Monedero { get; set; }
 
         // Propiedad de navegación
         public virtual Usuario Usuario { get; set; }

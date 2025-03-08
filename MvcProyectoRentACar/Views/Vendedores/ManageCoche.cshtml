@@ -2,7 +2,7 @@
 @{
 	Coche coche = ViewData["coche"] as Coche;
 	List<EstadoReserva> estadoReserva = ViewData["estado"] as List<EstadoReserva>;
-
+	int contador = 1;
 }
 
 <div class="container-fluid py-5">
@@ -49,7 +49,20 @@
 								}
 								<td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
 								<td>@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
-								@if (reserva.IdEstadoReserva == 1)
+								@if (contador == 1 && reserva.IdEstadoReserva != 1)
+								{
+									<form method="post">
+									<td>
+										<input value="@coche.IdCoche" hidden />
+										<button class="btn btn-primary" name="setactive" value="@reserva.IdReserva">Establecer Activo</button>
+									</td>
+									</form>
+								}
+								@{
+									contador++;
+								}
+								
+								@* @if (reserva.IdEstadoReserva == 1)
 								{
 									<form method="post">
 									<td>
@@ -68,7 +81,7 @@
 										<button class="btn btn-primary" name="setactive" value="@reserva.IdReserva">Establecer Activo</button>
 									</td>
 									</form>
-								}
+								} *@
 
 							</tr>
 						}

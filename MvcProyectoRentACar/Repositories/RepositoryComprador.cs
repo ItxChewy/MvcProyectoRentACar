@@ -2,6 +2,7 @@
 using MvcProyectoRentACar.Data;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
+using MvcProyectoRentACar.Models.MvcProyectoRentACar.Models;
 
 namespace MvcProyectoRentACar.Repositories
 {
@@ -134,6 +135,21 @@ namespace MvcProyectoRentACar.Repositories
                 compras.Add(compra);
             }
             return compras;
+        }
+
+        public async Task<List<VistaReserva>> GetVistaReservasAsync()
+        {
+            return await (from r in this.context.Reservas
+                          join c in this.context.Coches on r.IdCoche equals c.IdCoche
+                          select new VistaReserva
+                          {
+                              IdReserva = r.IdReserva,
+                              IdCoche = r.IdCoche,
+                              FechaInicio = r.FechaInicio,
+                              FechaFin = r.FechaFin,
+                              Marca = c.Marca,
+                              Modelo = c.Modelo
+                          }).ToListAsync();
         }
 
     }

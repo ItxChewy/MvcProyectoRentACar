@@ -1,0 +1,46 @@
+﻿@model List<Reserva>
+
+@if (Model.Count() == 0)
+{
+    <h3 class="text-uppercase text-center">No existen reservas</h3>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>Coche</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha fin</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Reserva reserva in Model)
+                {
+                    @if (reserva.FechaFin.Date == DateTime.Today)
+                    {
+                        <tr>
+                            <td>@reserva.IdCoche</td>
+                            <td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
+                            <td style="background-color: rgba(0, 128, 0, 0.25);">@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#comprobarKmsModal" data-idreserva="@reserva.IdReserva">Comprobar Kms</button>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>@reserva.IdCoche</td>
+                            <td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
+                            <td class="bg-warning bg-opacity-25">@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
+                            <td><span class="text-muted">No disponible</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}

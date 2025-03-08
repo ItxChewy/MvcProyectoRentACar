@@ -13,7 +13,7 @@
 	<link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-	
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
 
 	<!-- Customized Bootstrap Stylesheet -->
 	<link href="~/css/bootstrap.min.css" rel="stylesheet">
@@ -87,6 +87,7 @@
 		</div>
 		<!-- Navbar End -->
 		@RenderBody()
+		@RenderSection("Scripts", required: false)
 	}
 	else if (Context.Session.GetInt32("rol") == 1)
 	{
@@ -119,6 +120,7 @@
 		</div>
 		<!-- Navbar End -->
 		@RenderBody()
+		
 	}
 
 
@@ -136,9 +138,11 @@
 	<script src="~/lib/tempusdominus/js/moment.min.js"></script>
 	<script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
 	<script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
 	<!-- Template Javascript -->
 	<script src="~/js/main.js"></script>
+	@RenderSection("Scripts", required: false)
 </body>
 
 </html>

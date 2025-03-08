@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MvcProyectoRentACar.Data;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
+using MvcProyectoRentACar.Models.MvcProyectoRentACar.Models;
 
 namespace MvcProyectoRentACar.Repositories
 {
@@ -141,11 +142,59 @@ namespace MvcProyectoRentACar.Repositories
                            select datos;
             return await consulta.ToListAsync();
         }
+        public async Task<List<VistaReserva>> GetVistaReservasAsync()
+        {
+            return await (from r in this.context.Reservas
+                          join c in this.context.Coches on r.IdCoche equals c.IdCoche
+                          select new VistaReserva
+                          {
+                              IdReserva = r.IdReserva,
+                              IdCoche = r.IdCoche,
+                              FechaInicio = r.FechaInicio,
+                              FechaFin = r.FechaFin,
+                              Marca = c.Marca,
+                              Modelo = c.Modelo
+                          }).ToListAsync();
+        }
+        public async Task<List<Reserva>> GetReservasFilterAsync()
+        {
+            DateTime today = DateTime.Today;
+            DateTime threeDaysAhead = today.AddDays(3);
 
+            var consulta = from datos in this.context.Reservas
+                           where datos.FechaFin >= today
+                                 && datos.FechaFin <= threeDaysAhead
+                                 && datos.IdEstadoReserva != 2
+                           orderby datos.FechaFin ascending
+                           select datos;
+            return await consulta.ToListAsync();
+        }
         public async Task<List<Reserva>> GetReservasKilometrajeAsync()
         {
+            DateTime today = DateTime.Today;
+            DateTime threeDaysAhead = today.AddDays(3);
+
             var consulta = from datos in this.context.Reservas
-                           where datos.Kilometraje == true 
+                           where datos.Kilometraje == true
+                                 && datos.FechaFin >= today
+                                 && datos.FechaFin <= threeDaysAhead
+                                 && datos.IdEstadoReserva != 2
+                           orderby datos.FechaFin ascending
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+
+        public async Task<List<Reserva>> GetReservasIlimitadosAsync()
+        {
+            DateTime today = DateTime.Today;
+            DateTime threeDaysAhead = today.AddDays(3);
+
+            var consulta = from datos in this.context.Reservas
+                           where datos.Kilometraje == false
+                                 && datos.FechaFin >= today
+                                 && datos.FechaFin <= threeDaysAhead
+                                 && datos.IdEstadoReserva != 2
                            orderby datos.FechaFin ascending
                            select datos;
             return await consulta.ToListAsync();
@@ -178,6 +227,10 @@ namespace MvcProyectoRentACar.Repositories
         public async Task CambiarAEstadoActivoReservaAsync(int idreserva)
         {
             Reserva res = await this.GetReservaAsync(idreserva);
+            if (res.FechaInicio != DateTime.Today)
+            {
+                throw new Exception("La reserva solo puede ser activada si la fecha de inicio es hoy.");
+            }
             var activeReservations = await this.context.Reservas
                             .Where(r => r.IdCoche == res.IdCoche && r.IdEstadoReserva == 1)
                             .ToListAsync();
@@ -197,6 +250,52 @@ namespace MvcProyectoRentACar.Repositories
             await this.context.SaveChangesAsync();
         }
 
-      
+        public async Task ActualizarKilometraje(int idreserva, int newkilometraje)
+        {
+            var idCoche = await (from datos in this.context.Reservas
+                                 where datos.IdReserva == idreserva
+                                 select datos.IdCoche).FirstOrDefaultAsync();
+
+            Coche coche = await this.DetailsCocheAsync(idCoche);
+            int oldKilometraje = coche.Kilometraje;
+            int kilometrosCalculados = oldKilometraje + newkilometraje;
+            coche.Kilometraje = kilometrosCalculados;
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task GetCargoExcedido(int idreserva, int newkilometraje)
+        {
+            
+
+            double cargoAdicional = 0;
+
+            if (newkilometraje > 1200)
+            {
+                int kilometrosExcedidos = newkilometraje - 1200;
+                cargoAdicional = kilometrosExcedidos * 2.5;
+            }
+
+            // Obtener la reserva
+            Reserva reserva = await this.GetReservaAsync(idreserva);
+            if (reserva != null)
+            {
+                // Obtener el comprador asociado a la reserva
+                var comprador = await (from datos in context.Compradores
+                                      where datos.IdUsuario == reserva.IdUsuario
+                                      select datos).FirstOrDefaultAsync();
+
+                if (comprador != null)
+                {
+                    // Añadir el cargo adicional al monedero del comprador
+                    comprador.Monedero += (decimal)cargoAdicional;
+                    await this.context.SaveChangesAsync();
+                }
+            }
+            await this.ActualizarKilometraje(idreserva, newkilometraje);
+            await this.CambiarAEstadoFinalizadoReservaAsync(idreserva);
+        }
+
+
+
     }
 }

@@ -83,6 +83,7 @@ namespace MvcProyectoRentACar.Repositories
                 comprador.Carnet = carnet;
                 comprador.Telefono = telefono;
                 comprador.FechaNacimiento = (DateTime)fechanacimiento;
+                comprador.Monedero = 0;
                 this.context.Compradores.Add(comprador);
                 await this.context.SaveChangesAsync();
                 return true;

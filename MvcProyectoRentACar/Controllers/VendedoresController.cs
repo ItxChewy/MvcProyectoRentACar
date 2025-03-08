@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
+using MvcProyectoRentACar.Models.MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Repositories;
 
 namespace MvcProyectoRentACar.Controllers
@@ -110,10 +111,69 @@ namespace MvcProyectoRentACar.Controllers
             return RedirectToAction("Coches");
         }
 
-        public async Task<IActionResult> ComprobarKilometraje()
+        public async Task<IActionResult> ComprobarKilometraje(int? filtro)
         {
-            List<Reserva> reservas = await this.repo.GetReservasKilometrajeAsync();
+            List<Reserva> reservas = await this.repo.GetReservasFilterAsync();
+
+            if (filtro.HasValue && filtro.Value != 0)
+            {
+                if (filtro.Value == 1)
+                {
+                    reservas = reservas.Where(r => r.Kilometraje == true).ToList();
+                }
+                else if (filtro.Value == 2)
+                {
+                    reservas = reservas.Where(r => r.Kilometraje == false).ToList();
+                }
+            }
+
+            ViewData["Filtro"] = filtro ?? 0;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ComprobarKilometrajeTable", reservas);
+            }
+
             return View(reservas);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ComprobarKilometraje(int idreserva,int newkilometraje)
+        {
+            await this.repo.GetCargoExcedido(idreserva, newkilometraje);
+            List<Reserva> reservas = await this.repo.GetReservasFilterAsync();
+            return View(reservas);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetReservasConCoche()
+        {
+            // Retrieve reservations with car details.
+            List<VistaReserva> reservas = await this.repo.GetVistaReservasAsync();
+
+            // Predefine a set of colors.
+            string[] colors = new[] { "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", "#1ABC9C" };
+            // Dictionary to store mapping: car id -> assigned color.
+            Dictionary<int, string> carColorMap = new Dictionary<int, string>();
+            int colorIndex = 0;
+
+            var eventos = reservas.Select(r =>
+            {
+                if (!carColorMap.ContainsKey(r.IdCoche))
+                {
+                    carColorMap[r.IdCoche] = colors[colorIndex % colors.Length];
+                    colorIndex++;
+                }
+                return new
+                {
+                    title = $"{r.Marca} {r.Modelo}",  // Display car brand and model.
+                    start = r.FechaInicio.ToString("yyyy-MM-dd"),
+                    // FullCalendar's end date is exclusive, so you may wish to add one day (if needed):
+                    end = r.FechaFin.AddDays(1).ToString("yyyy-MM-dd"),
+                    color = carColorMap[r.IdCoche]
+                };
+            }).ToList();
+
+            return Json(eventos);
         }
     }
 }
