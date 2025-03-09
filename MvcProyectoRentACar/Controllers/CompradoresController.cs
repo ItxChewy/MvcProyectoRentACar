@@ -107,29 +107,39 @@ namespace MvcProyectoRentACar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult>DetailsCoche(int idcoche
-            , DateTime fechainicio, DateTime fechafin,double valor,bool kilometraje)
+        public async Task<IActionResult> DetailsCoche(int idcoche, DateTime fechainicio, DateTime fechafin, double valor, bool kilometraje)
         {
             int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
             bool disponible = await this.repo.ComprobarDisponibilidadCocheAsync(idcoche, fechainicio, fechafin);
             if (disponible)
             {
-                await this.repo.CompraCocheAsync(idusuario,idcoche,fechainicio,fechafin,valor,kilometraje);
-                return RedirectToAction("Coches");
+                await this.repo.CompraCocheAsync(idusuario, idcoche, fechainicio, fechafin, valor, kilometraje);
+                VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
+                TempData["SuccessMessage"] = "Reserva realizada correctamente.";
+                return View(coche);
             }
             else
             {
                 VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
-                Console.WriteLine("fecha ocupada");
+                TempData["ErrorMessage"] = "Las fechas seleccionadas no están disponibles.";
                 return View(coche);
             }
         }
 
-        public async Task<IActionResult> Compras()
+        public async Task<IActionResult> Compras(string estadoReserva)
         {
             int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
-            List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario);
+            List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario, estadoReserva);
+            ViewData["EstadoReservaSeleccionado"] = estadoReserva;
             return View(compras);
         }
+
+        public async Task<IActionResult> ComprasListPartial(string estadoReserva)
+        {
+            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario, estadoReserva);
+            return PartialView("_ComprasList", compras);
+        }
+
     }
 }

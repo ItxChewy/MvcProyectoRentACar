@@ -108,7 +108,7 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task<List<Compra>> GetComprasUsuarioAsync(int idusuario)
+        public async Task<List<Compra>> GetComprasUsuarioAsync(int idusuario, string estadoReserva = null)
         {
             List<Reserva> reservas = await (from datos in this.context.Reservas
                                             where datos.IdUsuario == idusuario
@@ -134,6 +134,12 @@ namespace MvcProyectoRentACar.Repositories
                 }
                 compras.Add(compra);
             }
+
+            if (!string.IsNullOrEmpty(estadoReserva))
+            {
+                compras = compras.Where(c => c.EstadoReserva == estadoReserva).ToList();
+            }
+
             return compras;
         }
 
