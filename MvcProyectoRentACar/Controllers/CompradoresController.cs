@@ -85,17 +85,14 @@ namespace MvcProyectoRentACar.Controllers
         [HttpGet]
         public async Task<IActionResult> GetReservasPorCocheComprador(int idcoche)
         {
-            // Retrieve all reservations with car details.
             List<VistaReserva> reservas = await this.repo.GetVistaReservasAsync();
             // Filter reservations for the specific car.
             reservas = reservas.Where(r => r.IdCoche == idcoche).ToList();
 
-            // You can define a fixed color or vary it if needed; here we use a fixed color.
             string color = "#FF5733";
 
             var eventos = reservas.Select(r => new
             {
-                // Use the car's brand and model as the event title.
                 title = $"{r.Marca} {r.Modelo}",
                 start = r.FechaInicio.ToString("yyyy-MM-dd"),
                 // FullCalendar requires that the end date be exclusive; adding one day.

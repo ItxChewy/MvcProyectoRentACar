@@ -1,22 +1,40 @@
 ﻿@model List<VistaCoche>
-
+@await Html.PartialAsync("_SuccessModal")
 <div class="container-fluid py-5">
-	<div class="container pt-5 pb-3">
-		<h1 class="display-1 text-primary text-center"></h1>
-		<h1 class="display-4 text-uppercase text-center mb-5">Gestiona tus Coches</h1>
-		<div class="row">
-			@foreach (VistaCoche coche in Model)
-			{
-				<div class="col-lg-4 col-md-6 mb-2">
-					<div class="rent-item mb-4">
-						<img class="img-fluid mb-4" src="~/images/@coche.Imagen" style="width:300px;height:200px"/>
-						<h4 class="text-uppercase mb-4">@coche.Marca @coche.Modelo</h4>
-						<a class="btn btn-primary px-3 mb-3" asp-action="ManageCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Reservas</a>
-						<a class="btn btn-primary px-3 mb-3" asp-action="UpdateCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Modificar Precio</a>
-						<a class="btn btn-danger px-3" asp-action="DeleteCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Dar de baja coche</a>
-					</div>
-				</div>
-			}
-		</div>
-	</div>
+    <div class="container pt-5 pb-3">
+        <h1 class="display-1 text-primary text-center"></h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Gestiona tus Coches</h1>
+        <div class="row">
+            @foreach (VistaCoche coche in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-2">
+                    <div class="rent-item mb-4">
+                        <img class="img-fluid mb-4" src="~/images/@coche.Imagen" style="width:300px;height:200px" />
+                        <h4 class="text-uppercase mb-4">@coche.Marca @coche.Modelo</h4>
+                        <a class="btn btn-primary px-3 mb-3" asp-action="ManageCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Reservas</a>
+                        <a class="btn btn-primary px-3 mb-3" asp-action="UpdateCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Modificar Precio</a>
+                        <button class="btn btn-danger px-3" onclick="confirmDelete(@coche.IdCoche)">Dar de baja coche</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#successModal').modal('show');
+        });
+        function confirmDelete(idCoche) {
+            $('#confirmDeleteButton').attr('onclick', `deleteCoche(${idCoche})`);
+            $('#warningModal').modal('show');
+        }
+
+        function deleteCoche(idCoche) {
+            window.location.href = '@Url.Action("DeleteCoche", "Vendedores")' + '?idcoche=' + idCoche;
+        }
+    </script>
+}
+
+@await Html.PartialAsync("_WarningModal")

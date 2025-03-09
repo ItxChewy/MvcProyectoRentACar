@@ -33,11 +33,11 @@ namespace MvcProyectoRentACar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ManageCoche(int idcoche,int? setactive , int? finalizado)
+        public async Task<IActionResult> ManageCoche(int idcoche, int? setactive, int? finalizado)
         {
             ViewData["coche"] = await this.repo.DetailsCocheAsync(idcoche);
             ViewData["estado"] = await this.repo.GetEstadoReservaAsync();
-            
+
             if (setactive != null)
             {
                 await this.repo.CambiarAEstadoActivoReservaAsync((int)setactive);
@@ -62,23 +62,28 @@ namespace MvcProyectoRentACar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertCoche(string marca, string modelo, string matricula,IFormFile fichero, int asientos, int idmarchas,
+        public async Task<IActionResult> InsertCoche(string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
             int idgama, int kilometraje, int puertas, int idcombustible,
             string preciokilometros, string precioilimitado)
         {
+            ViewData["marchas"] = await this.repo.GetMarchasAsync();
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            ViewData["combustibles"] = await this.repo.GetCombustiblesAsync();
             int idvendedor = (int)HttpContext.Session.GetInt32("usuarioactual");
 
             decimal kilometrossanize = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
             decimal ilimitadosanized = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
-             
+
 
             await this.repo.InsertCocheAsync(marca, modelo, matricula, fichero, asientos, idmarchas, idgama, kilometraje
                 , puertas, idcombustible, idvendedor, kilometrossanize, ilimitadosanized);
 
-            return RedirectToAction("Coches");
+            TempData["SuccessMessage"] = "Coche insertado correctamente.";
+
+            return View();
         }
 
-        public async Task<IActionResult>UpdateCoche(int idcoche)
+        public async Task<IActionResult> UpdateCoche(int idcoche)
         {
             ViewData["gamas"] = await this.repo.GetGamasAsync();
             Coche coche = await this.repo.DetailsCocheAsync(idcoche);
@@ -86,30 +91,24 @@ namespace MvcProyectoRentACar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateCoche(int idcoche,string preciokilometros
-            , string precioilimitado, int idgama)
+        public async Task<IActionResult> UpdateCoche(int idcoche, string preciokilometros, string precioilimitado, int idgama)
         {
-            if (decimal.TryParse(preciokilometros, out decimal parsedPrecioKilometros) &&
-        decimal.TryParse(precioilimitado, out decimal parsedPrecioIlimitado))
-            {
-                await this.repo.UpdateCocheAsync(idcoche, idgama, parsedPrecioKilometros, parsedPrecioIlimitado);
-                return RedirectToAction("Coches");
-            }
-            else
-            {
-                // Handle parsing error, e.g., return an error message to the view
-                ModelState.AddModelError("", "Error parsing decimal values.");
-                ViewData["gamas"] = await this.repo.GetGamasAsync();
-                Coche coche = await this.repo.DetailsCocheAsync(idcoche);
-                return View(coche);
-            }
+            decimal parsedPrecioKilometros = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
+            decimal parsedPrecioIlimitado = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
+
+            await this.repo.UpdateCocheAsync(idcoche, idgama, parsedPrecioKilometros, parsedPrecioIlimitado);
+            TempData["SuccessMessage"] = "Coche actualizado correctamente.";
+            return RedirectToAction("Coches");
         }
+
 
         public async Task<IActionResult> DeleteCoche(int idcoche)
         {
             await this.repo.DeleteCocheAsync(idcoche);
+            TempData["SuccessMessage"] = "Coche eliminado correctamente.";
             return RedirectToAction("Coches");
         }
+
 
         public async Task<IActionResult> ComprobarKilometraje(int? filtro)
         {
@@ -138,7 +137,7 @@ namespace MvcProyectoRentACar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ComprobarKilometraje(int idreserva,int newkilometraje)
+        public async Task<IActionResult> ComprobarKilometraje(int idreserva, int newkilometraje)
         {
             await this.repo.GetCargoExcedido(idreserva, newkilometraje);
             List<Reserva> reservas = await this.repo.GetReservasFilterAsync();
