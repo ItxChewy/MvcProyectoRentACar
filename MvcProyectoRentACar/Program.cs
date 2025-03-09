@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using MvcProyectoRentACar.Data;
+using MvcProyectoRentACar.Filters;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ViewDataFilter>(); // Registrar el filtro globalmente
+});
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<HelperPathProvider>();
@@ -20,6 +24,10 @@ builder.Services.AddSession(options =>
 builder.Services.AddTransient<RepositorySesion>();
 builder.Services.AddTransient<RepositoryComprador>();
 builder.Services.AddTransient<RepositoryVendedor>();
+builder.Services.AddTransient<RepositoryFilter>();
+
+builder.Services.AddTransient<ViewDataFilter>();
+
 
 string connectionString = builder.Configuration.GetConnectionString("SqlRentACarCasa");
 builder.Services.AddDbContext<RentACarContext>

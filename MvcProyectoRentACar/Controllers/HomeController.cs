@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MvcProyectoRentACar.Models;
+using MvcProyectoRentACar.Repositories;
 
 namespace MvcProyectoRentACar.Controllers
 {
@@ -13,7 +14,7 @@ namespace MvcProyectoRentACar.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index()
         {
             return View();
         }
