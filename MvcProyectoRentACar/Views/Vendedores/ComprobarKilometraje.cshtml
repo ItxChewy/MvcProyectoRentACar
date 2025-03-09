@@ -1,5 +1,8 @@
 ﻿@model List<Reserva>
 
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_WarningModal")
+
 <div class="container-fluid py-5">
     <div class="container pt-5 pb-3">
         <h1 class="display-4 text-uppercase text-center mb-5">Comprobar Kilometraje</h1>
@@ -9,9 +12,9 @@
             int filtroActual = (int)(ViewData["Filtro"] ?? 0);
         }
         <div class="mb-3">
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 0 })" class="btn btn-primary ajax-filter @(filtroActual == 0 ? "active" : "")">Todas</a>
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 1 })" class="btn btn-primary ajax-filter @(filtroActual == 1 ? "active" : "")">Con Kilometraje</a>
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 2 })" class="btn btn-primary ajax-filter @(filtroActual == 2 ? "active" : "")">Km Ilimitados</a>
+            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 0 })" class="btn btn-primary @(filtroActual == 0 ? "active" : "")">Todas</a>
+            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 1 })" class="btn btn-primary @(filtroActual == 1 ? "active" : "")">Con Kilometraje</a>
+            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 2 })" class="btn btn-primary @(filtroActual == 2 ? "active" : "")">Km Ilimitados</a>
         </div>
 
         <div id="tablaReservas">
@@ -20,7 +23,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal de Kilometraje -->
 <div class="modal fade" id="comprobarKmsModal" tabindex="-1" role="dialog" aria-labelledby="comprobarKmsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -30,45 +33,44 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form id="comprobarKmsForm" method="post" action="@Url.Action("ComprobarKilometraje", "Vendedores")">
+            <form id="comprobarKmsForm" method="post" action="@Url.Action("ComprobarKilometraje", "Vendedores")">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="newKilometraje">Nuevo Kilometraje</label>
-                        <input type="number" class="form-control" id="newKilometraje" name="newKilometraje" required />
+                        <input type="number" class="form-control" id="newKilometraje" name="newkilometraje" required />
                     </div>
-                    <input type="hidden" id="idreserva" name="idreserva" />
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="submit" class="btn btn-primary" form="comprobarKmsForm">Guardar cambios</button>
-            </div>
+                    <input type="hidden" id="idreserva" name="idreserva" value="@(TempData["IdReservaKm"])" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Update table on filter click using AJAX
-        $(document).on("click", ".ajax-filter", function (e) {
-            e.preventDefault();
-            var url = $(this).attr("href");
-            $.get(url, function (data) {
-                $("#tablaReservas").html(data);
-                $(".ajax-filter").removeClass("active");
-            }).done(function () {
-                //Mark the clicked filter as active (using 'this' inside the .done callback may not be the element, so we use the URL)
-                $('.ajax-filter[href="' + url + '"]').addClass("active");
-            });
-        });
+        $(document).ready(function() {
+            // Mostrar modal de éxito si existe
+            if ($('#successModal').length) {
+                $('#successModal').modal('show');
+            }
 
-        // Modal code (unchanged)
-        $('#comprobarKmsModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var idReserva = button.data('idreserva');
-            console.log("ID Reserva:", idReserva);
-            var modal = $(this);
-            modal.find('.modal-body #idreserva').val(idReserva);
+            // Mostrar modal de kilometraje si viene del warning
+            $('#confirmButton').on('click', function() {
+                $('#warningModal').modal('hide');
+                $('#comprobarKmsModal').modal('show');
+            });
+
+            // Si existe un ID de reserva del TempData, mostrar el modal
+        @if (TempData["IdReservaKm"] != null)
+        {
+            <text>
+                    $('#comprobarKmsModal').modal('show');
+            </text>
+        }
         });
     </script>
 }

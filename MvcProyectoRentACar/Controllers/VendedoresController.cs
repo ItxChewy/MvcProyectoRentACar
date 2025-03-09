@@ -20,8 +20,17 @@ namespace MvcProyectoRentACar.Controllers
 
         public async Task<IActionResult> Coches()
         {
+            TempData["WarningMessage"] = "¿Estas seguro de eliminar el coche?";
+            TempData["WarningMessageBtn"] = "Eliminar";
             List<VistaCoche> coches = await this.repo.GetCochesAsync();
             return View(coches);
+        }
+
+        public async Task<IActionResult> DeleteCoche(int idcoche)
+        {
+            TempData["SuccessMessage"] = "Coche eliminado correctamente.";
+            await this.repo.DeleteCocheAsync(idcoche);  
+            return RedirectToAction("Coches");
         }
 
         public async Task<IActionResult> ManageCoche(int idcoche)
@@ -86,6 +95,8 @@ namespace MvcProyectoRentACar.Controllers
         public async Task<IActionResult> UpdateCoche(int idcoche)
         {
             ViewData["gamas"] = await this.repo.GetGamasAsync();
+            TempData["WarningMessage"] = "¿Estas seguro de modificar el coche?";
+            TempData["WarningMessageBtn"] = "Modificar";
             Coche coche = await this.repo.DetailsCocheAsync(idcoche);
             return View(coche);
         }
@@ -98,17 +109,10 @@ namespace MvcProyectoRentACar.Controllers
 
             await this.repo.UpdateCocheAsync(idcoche, idgama, parsedPrecioKilometros, parsedPrecioIlimitado);
             TempData["SuccessMessage"] = "Coche actualizado correctamente.";
-            return RedirectToAction("Coches");
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            Coche coche = await this.repo.DetailsCocheAsync(idcoche);
+            return View(coche);
         }
-
-
-        public async Task<IActionResult> DeleteCoche(int idcoche)
-        {
-            await this.repo.DeleteCocheAsync(idcoche);
-            TempData["SuccessMessage"] = "Coche eliminado correctamente.";
-            return RedirectToAction("Coches");
-        }
-
 
         public async Task<IActionResult> ComprobarKilometraje(int? filtro)
         {
@@ -139,9 +143,42 @@ namespace MvcProyectoRentACar.Controllers
         [HttpPost]
         public async Task<IActionResult> ComprobarKilometraje(int idreserva, int newkilometraje)
         {
+            // Actualizar el kilometraje a través del repositorio
             await this.repo.GetCargoExcedido(idreserva, newkilometraje);
+
+            // Establecer el mensaje de éxito para el modal
+            TempData["SuccessMessage"] = "Kilometraje actualizado correctamente.";
+
+            // Obtener la lista de reservas actualizada
             List<Reserva> reservas = await this.repo.GetReservasFilterAsync();
+
+            // Aplicar filtro si es necesario
+            int filtro = TempData["FiltroActual"] != null ? (int)TempData["FiltroActual"] : 0;
+            ViewData["Filtro"] = filtro;
+
+            if (filtro == 1)
+            {
+                reservas = reservas.Where(r => r.Kilometraje == true).ToList();
+            }
+            else if (filtro == 2)
+            {
+                reservas = reservas.Where(r => r.Kilometraje == false).ToList();
+            }
+
+            // Devolver la vista completa
             return View(reservas);
+        }
+
+        // Añadir este método para manejar la confirmación antes de la actualización
+        public async Task<IActionResult> ConfirmarKilometraje(int idreserva)
+        {
+            // Establecer los mensajes para el modal de advertencia
+            TempData["WarningMessage"] = "¿Estás seguro de actualizar el kilometraje?";
+            TempData["WarningMessageBtn"] = "Actualizar";
+            TempData["IdReservaKm"] = idreserva;
+
+            // Redirigir a la vista de ComprobarKilometraje
+            return RedirectToAction("ComprobarKilometraje");
         }
         [HttpGet]
         public async Task<IActionResult> GetReservasConCoche()

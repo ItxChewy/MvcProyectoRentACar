@@ -26,7 +26,7 @@ else
                             <td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td style="background-color: rgba(0, 128, 0, 0.25);">@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
                             <td>
-                                <button class="btn btn-primary" data-toggle="modal" data-target="#comprobarKmsModal" data-idreserva="@reserva.IdReserva">Comprobar Kms</button>
+                                <a href="@Url.Action("ConfirmarKilometraje", "Vendedores", new { idreserva = reserva.IdReserva })" class="btn btn-primary">Comprobar Kms</a>
                             </td>
                         </tr>
                     }

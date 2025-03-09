@@ -3,6 +3,8 @@
     List<Gama> gamas = ViewData["gamas"] as List<Gama>;
 }
 @await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_WarningModal")
+
 
 <div class="container-fluid pt-5">
     <div class="container pt-5 pb-3">
@@ -39,7 +41,7 @@
                             <input type="text" name="precioilimitado" class="form-control" value="@Model.PrecioIlimitado.ToString("0.##")" />
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Actualizar Coche</button>
+                    <button type="button"  class="btn btn-primary" onclick="confirmUpdate(@Model.IdCoche)">Actualizar Coche</button>
                 </form>
             </div>
         </div>
@@ -49,7 +51,22 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            $('#successModal').modal('show');
+                $('#successModal').modal('show');
         });
+
+        function confirmUpdate(idCoche) {
+            // Prevent default form submission
+            event.preventDefault();
+
+            // Show the warning modal
+            $('#warningModal').modal('show');
+
+            // Handle the confirmation button click
+            $('#confirmButton').off('click').on('click', function() {
+                // Submit the form normally instead of AJAX
+                document.getElementById('updateCocheForm').submit();
+            });
+        }
     </script>
+
 }

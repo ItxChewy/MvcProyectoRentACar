@@ -1,5 +1,6 @@
 ﻿@model List<VistaCoche>
 @await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_WarningModal")
 <div class="container-fluid py-5">
     <div class="container pt-5 pb-3">
         <h1 class="display-1 text-primary text-center"></h1>
@@ -24,17 +25,29 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            $('#successModal').modal('show');
+            // Show success modal if it exists when page loads
+            if ($('#successModal').length) {
+                $('#successModal').modal('show');
+            }
         });
-        function confirmDelete(idCoche) {
-            $('#confirmDeleteButton').attr('onclick', `deleteCoche(${idCoche})`);
-            $('#warningModal').modal('show');
-        }
 
-        function deleteCoche(idCoche) {
-            window.location.href = '@Url.Action("DeleteCoche", "Vendedores")' + '?idcoche=' + idCoche;
+        function confirmDelete(idCoche) {
+            // Show the warning modal
+            $('#warningModal').modal('show');
+
+            // Store the coche ID to be used when confirming deletion
+            $('#confirmButton').data('id', idCoche);
+
+            // Handle the confirmation button click
+            $('#confirmButton').off('click').on('click', function() {
+                var cocheId = $(this).data('id');
+
+                // Navigate to the DeleteCoche action with the coche ID
+                window.location.href = '@Url.Action("DeleteCoche", "Vendedores")?idcoche=' + cocheId;
+            });
         }
     </script>
 }
 
-@await Html.PartialAsync("_WarningModal")
+
+
