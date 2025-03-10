@@ -108,6 +108,12 @@ namespace MvcProyectoRentACar.Controllers
         {
             int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
             bool disponible = await this.repo.ComprobarDisponibilidadCocheAsync(idcoche, fechainicio, fechafin);
+            if(fechafin < fechainicio)
+            {
+                VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
+                TempData["ErrorMessage"] = "La fecha fin debe ser posterior a la fecha de inicio.";
+                return View(coche);
+            }
             if (disponible)
             {
                 await this.repo.CompraCocheAsync(idusuario, idcoche, fechainicio, fechafin, valor, kilometraje);

@@ -9,14 +9,23 @@ namespace MvcProyectoRentACar.Repositories
 {
     #region PROCEDURES
     /*  
-     CREATE PROCEDURE SP_INSERT_COCHE
-    (@MARCA NVARCHAR(50),@MODELO NVARCHAR(50),@MATRICULA NVARCHAR(50),@IMAGEN NVARCHAR(50)
-    ,@ASIENTOS INT,@IDMARCHAS INT,@IDGAMA INT,@KILOMETRAJE INT,@PUERTAS INT,@IDCOMBUSTIBLE INT
-    ,@IDVENDEDOR INT,@PRECIOKILOMETROS DECIMAL(10,2),@PRECIOILIMITADO DECIMAL(10,2))
+     alter PROCEDURE SP_INSERT_COCHE
+    (@MARCA NVARCHAR(50),@MODELO NVARCHAR(50),@MATRICULA NVARCHAR(50),@IMAGEN NVARCHAR(50),
+    @ASIENTOS INT,@IDMARCHAS INT,@IDGAMA INT,@KILOMETRAJE INT,@PUERTAS INT,@IDCOMBUSTIBLE INT,
+    @IDVENDEDOR INT,@PRECIOKILOMETROS DECIMAL(10,2),@PRECIOILIMITADO DECIMAL(10,2))
     AS
-	    INSERT INTO COCHE VALUES(@MARCA,@MODELO,@MATRICULA,@IMAGEN,@ASIENTOS,@IDMARCHAS,@IDGAMA,1
-	    ,@KILOMETRAJE,@PUERTAS,@IDCOMBUSTIBLE,@IDVENDEDOR,@PRECIOKILOMETROS,@PRECIOILIMITADO);
+    BEGIN
+        DECLARE @NEW_ID INT;
 
+        -- Obtener el máximo ID de la tabla COCHE y sumarle 1
+        SELECT @NEW_ID = ISNULL(MAX(ID), 0) + 1 FROM COCHE;
+
+        -- Insertar el nuevo coche con el ID calculado
+        INSERT INTO COCHE (ID, MARCA, MODELO, MATRICULA, IMAGEN, ASIENTOS, IDMARCHAS, IDGAMA, IDESTADO,
+                           KILOMETRAJE, PUERTAS, IDCOMBUSTIBLE, IDVENDEDOR, PRECIOKILOMETROS, PRECIOILIMITADO)
+        VALUES (@NEW_ID, @MARCA, @MODELO, @MATRICULA, @IMAGEN, @ASIENTOS, @IDMARCHAS, @IDGAMA, 1,
+                @KILOMETRAJE, @PUERTAS, @IDCOMBUSTIBLE, @IDVENDEDOR, @PRECIOKILOMETROS, @PRECIOILIMITADO);
+    END;
     GO
      */
 
@@ -50,7 +59,10 @@ namespace MvcProyectoRentACar.Repositories
             int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
             decimal preciokilometros, decimal precioilimitado)
         {
-            string fileName = fichero.FileName.ToLower();
+            int maxId = await this.context.Coches
+                        .Select(x => x.IdCoche)
+                        .MaxAsync() + 1;
+            string fileName = maxId.ToString() + fichero.FileName.ToLower();
             string path = this.helperPath.MapPath(fileName, Folders.Images);
 
             using (Stream stream = new FileStream(path, FileMode.Create))
@@ -105,8 +117,20 @@ namespace MvcProyectoRentACar.Repositories
                            where datos.IdCoche == idcoche
                            select datos;
             Coche coche = await consulta.FirstOrDefaultAsync();
+            List<Reserva> reservas = await this.context.Reservas
+                                .Where(x => x.IdCoche == idcoche).ToListAsync();
             if (coche != null)
             {
+                if (reservas != null && reservas.Count > 0)
+                {
+                    this.context.Reservas.RemoveRange(reservas);
+                }
+                string imagePath = this.helperPath.MapPath(coche.Imagen, Folders.Images);
+
+                if (File.Exists(imagePath))
+                {
+                    File.Delete(imagePath);
+                }
                 this.context.Coches.Remove(coche);
                 await this.context.SaveChangesAsync();
             }

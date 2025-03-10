@@ -7,12 +7,15 @@
 
 <div class="container-fluid py-5">
 	<div class="container pt-5 pb-3">
-		<h1 class="display-4 text-uppercase text-center mb-5">Reservas del @coche.Marca @coche.Modelo</h1>
+		<h1 class="display-4 text-uppercase text-center mb-5">Reservas: @coche.Marca @coche.Modelo</h1>
 		@if(Model.Count() == 0){
-			<h3 class="text-uppercase text-center">No existen reservas</h3>
+			<h3 class="text-uppercase text-center mt-4">No existen reservas</h3>
 		}else{
 			<div class="table-responsive">
 				<table class="table  table-hover table-bordered">
+					<a asp-action="Coches" asp-controller="Vendedores">
+						<i class="fa-solid fa-circle-arrow-left"></i>
+					</a>
 					<thead>
 						<tr>
 							<th>Coche</th>

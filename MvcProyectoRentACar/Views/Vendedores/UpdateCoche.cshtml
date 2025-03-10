@@ -8,15 +8,12 @@
 
 <div class="container-fluid pt-5">
     <div class="container pt-5 pb-3">
-        <h1 class="display-4 text-uppercase mb-5">@Model.Marca @Model.Modelo</h1>
-        <div class="row align-items-center pb-2">
-            <div class="col-lg-6 mb-4">
-                <img class="img-fluid" src="~/images/@Model.Imagen">
-            </div>
-        </div>
+        <a asp-action="Coches" asp-controller="Vendedores">
+            <i class="fa-solid fa-circle-arrow-left"></i>
+        </a>
         <div class="card my-4">
             <div class="card-header">
-                <h1>Modifica la gama y/o el precio</h1>
+                <h1>Modifica la gama y/o el precio de: @Model.Marca @Model.Modelo</h1>
             </div>
             <div class="card-body">
                 <form method="post" id="updateCocheForm">
