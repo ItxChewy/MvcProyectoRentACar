@@ -7,8 +7,8 @@ namespace MvcProyectoRentACar.Filters
 {
     public class ViewDataFilter:IAsyncActionFilter
     {
-        private RepositoryFilter repo;
-        public ViewDataFilter(RepositoryFilter repo)
+        private IRepositoryRentACar repo;
+        public ViewDataFilter(IRepositoryRentACar repo)
         {
             this.repo = repo;
         }

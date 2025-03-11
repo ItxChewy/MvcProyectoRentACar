@@ -13,7 +13,7 @@
                         <img class="img-fluid mb-4" src="~/images/@coche.Imagen" style="width:300px;height:200px" />
                         <h4 class="text-uppercase mb-4">@coche.Marca @coche.Modelo</h4>
                         <a class="btn btn-primary px-3 mb-3" asp-action="ManageCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Reservas</a>
-                        <a class="btn btn-primary px-3 mb-3" asp-action="UpdateCoche" asp-controller="Vendedores" asp-route-idcoche="@coche.IdCoche">Modificar Precio</a>
+                        <a class="btn btn-primary px-3 mb-3" asp-action="UpdateCoche" asp-controller="Coches" asp-route-idcoche="@coche.IdCoche">Modificar Precio</a>
                         <button class="btn btn-danger px-3" onclick="confirmDelete(@coche.IdCoche)">Dar de baja coche</button>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                 var cocheId = $(this).data('id');
 
                 // Navigate to the DeleteCoche action with the coche ID
-                window.location.href = '@Url.Action("DeleteCoche", "Vendedores")?idcoche=' + cocheId;
+                window.location.href = '@Url.Action("DeleteCoche", "Coches")?idcoche=' + cocheId;
             });
         }
     </script>

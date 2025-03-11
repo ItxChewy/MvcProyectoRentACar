@@ -1,0 +1,79 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using MvcProyectoRentACar.Helpers;
+using MvcProyectoRentACar.Models;
+using MvcProyectoRentACar.Repositories;
+
+namespace MvcProyectoRentACar.Controllers
+{
+    public class CochesController : Controller
+    {
+        private IRepositoryRentACar repo;
+        public CochesController(IRepositoryRentACar repo)
+        {
+            this.repo = repo;
+        }
+
+
+        public async Task<IActionResult> InsertCoche()
+        {
+            ViewData["marchas"] = await this.repo.GetMarchasAsync();
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            ViewData["combustibles"] = await this.repo.GetCombustiblesAsync();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InsertCoche(string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
+            int idgama, int kilometraje, int puertas, int idcombustible,
+            string preciokilometros, string precioilimitado)
+        {
+            ViewData["marchas"] = await this.repo.GetMarchasAsync();
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            ViewData["combustibles"] = await this.repo.GetCombustiblesAsync();
+            int idvendedor = (int)HttpContext.Session.GetInt32("usuarioactual");
+
+            decimal kilometrossanize = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
+            decimal ilimitadosanized = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
+
+
+            await this.repo.InsertCocheAsync(marca, modelo, matricula, fichero, asientos, idmarchas, idgama, kilometraje
+                , puertas, idcombustible, idvendedor, kilometrossanize, ilimitadosanized);
+
+            TempData["SuccessMessage"] = "Coche insertado correctamente.";
+
+            return View();
+        }
+
+        public async Task<IActionResult> UpdateCoche(int idcoche)
+        {
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            TempData["WarningMessage"] = "¿Estas seguro de modificar el coche?";
+            TempData["WarningMessageBtn"] = "Modificar";
+            Coche coche = await this.repo.DetailsCocheAsync(idcoche);
+            return View(coche);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateCoche(int idcoche, string preciokilometros, string precioilimitado, int idgama)
+        {
+            decimal parsedPrecioKilometros = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
+            decimal parsedPrecioIlimitado = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
+
+            await this.repo.UpdateCocheAsync(idcoche, idgama, parsedPrecioKilometros, parsedPrecioIlimitado);
+            TempData["SuccessMessage"] = "Coche actualizado correctamente.";
+            ViewData["gamas"] = await this.repo.GetGamasAsync();
+            Coche coche = await this.repo.DetailsCocheAsync(idcoche);
+            return View(coche);
+        }
+
+        public async Task<IActionResult> DeleteCoche(int idcoche)
+        {
+            TempData["SuccessMessage"] = "Coche eliminado correctamente.";
+            await this.repo.DeleteCocheAsync(idcoche);
+            return RedirectToAction("Coches", "Vendedores");
+        }
+
+
+    }
+}

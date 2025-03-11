@@ -30,16 +30,132 @@ namespace MvcProyectoRentACar.Repositories
      */
 
     #endregion
-    public class RepositoryVendedor
+    public class RepositoryRentACar: IRepositoryRentACar
     {
         private RentACarContext context;
         private HelperPathProvider helperPath;
-        public RepositoryVendedor(RentACarContext context, HelperPathProvider helperPath)
+
+        public RepositoryRentACar(RentACarContext context, HelperPathProvider helperPath)
         {
             this.context = context;
             this.helperPath = helperPath;
         }
 
+        #region FILTER
+        public async Task<Usuario> GetUsuarioAsync()
+        {
+            return await this.context.Usuarios
+                .Where(x => x.IdRolUsuario == 1).FirstOrDefaultAsync();
+        }
+        public async Task<Vendedor> GetVendedorAsync(int idusuario)
+        {
+            return await this.context.Vendedor
+                .Where(x => x.IdUsuario == idusuario).FirstOrDefaultAsync();
+        }
+        #endregion
+        #region SESION
+        public async Task<int> GetMaxIdUser()
+        {
+            if (this.context.Usuarios.Count() == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return await this.context.Usuarios.MaxAsync
+                    (x => x.IdUsuario) + 1;
+            }
+        }
+        public async Task<int> GetMaxIdComprador()
+        {
+            if (this.context.Compradores.Count() == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return await this.context.Compradores.MaxAsync
+                    (x => x.IdComprador) + 1;
+            }
+        }
+
+        public async Task<bool> CheckVendedor()
+        {
+            return await this.context.Vendedor.AnyAsync();
+        }
+        public async Task<Usuario> LoginAsync(string email, string password)
+        {
+            return await this.context.Usuarios
+                .FirstOrDefaultAsync(i => i.Email == email && i.Password == password);
+        }
+
+        public async Task<List<Rol>> GetRolesAsync()
+        {
+            var consulta = from datos in this.context.Roles
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+
+        public async Task<bool> RegisterUsuarioAsync
+            (string nombre, string email, string password, int idrol, string telefono
+            , string? apellidos, string? dni, string? carnet
+             , DateTime? fechanacimiento, string? direccion, string? passpecial
+            , string? nombreempresa)
+        {
+            Usuario usuario = new Usuario();
+            usuario.IdUsuario = await this.GetMaxIdUser();
+            usuario.Nombre = nombre;
+            usuario.Email = email;
+            usuario.Password = password;
+            usuario.IdRolUsuario = idrol;
+            usuario.Salt = HelperCryptography.GenerateSalt();
+            usuario.PassBytes = HelperCryptography.EncryptPassword(password, usuario.Salt);
+            this.context.Usuarios.Add(usuario);
+
+            if (idrol == 2)
+            {
+                Comprador comprador = new Comprador();
+                comprador.IdComprador = await this.GetMaxIdComprador();
+                comprador.IdUsuario = usuario.IdUsuario;
+                comprador.Nombre = usuario.Nombre;
+                comprador.Apellidos = apellidos;
+                comprador.Dni = dni;
+                comprador.Carnet = carnet;
+                comprador.Telefono = telefono;
+                comprador.FechaNacimiento = (DateTime)fechanacimiento;
+                comprador.Monedero = 0;
+                this.context.Compradores.Add(comprador);
+                await this.context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                bool check = await this.CheckVendedor();
+                if (!check && passpecial == "v123")
+                {
+                    Vendedor vendedor = new Vendedor();
+                    vendedor.IdVendedor = 1;
+                    vendedor.IdUsuario = usuario.IdUsuario;
+                    vendedor.NombreEmpresa = nombreempresa;
+                    vendedor.Direccion = direccion;
+                    vendedor.Telefono = telefono;
+                    this.context.Vendedor.Add(vendedor);
+                    await this.context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    System.Console.WriteLine("ya existe vendedor");
+                    return false;
+                }
+
+            }
+
+
+        }
+        #endregion
+        #region VENDEDOR
         public async Task<List<VistaCoche>> GetCochesAsync()
         {
             var consulta = from datos in this.context.VistaCoches
@@ -208,7 +324,6 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.ToListAsync();
         }
 
-
         public async Task<List<Reserva>> GetReservasIlimitadosAsync()
         {
             DateTime today = DateTime.Today;
@@ -289,8 +404,6 @@ namespace MvcProyectoRentACar.Repositories
 
         public async Task GetCargoExcedido(int idreserva, int newkilometraje)
         {
-            
-
             double cargoAdicional = 0;
 
             if (newkilometraje > 1200)
@@ -298,19 +411,14 @@ namespace MvcProyectoRentACar.Repositories
                 int kilometrosExcedidos = newkilometraje - 1200;
                 cargoAdicional = kilometrosExcedidos * 2.5;
             }
-
-            // Obtener la reserva
             Reserva reserva = await this.GetReservaAsync(idreserva);
             if (reserva != null)
             {
-                // Obtener el comprador asociado a la reserva
                 var comprador = await (from datos in context.Compradores
-                                      where datos.IdUsuario == reserva.IdUsuario
-                                      select datos).FirstOrDefaultAsync();
-
+                                       where datos.IdUsuario == reserva.IdUsuario
+                                       select datos).FirstOrDefaultAsync();
                 if (comprador != null)
                 {
-                    // Añadir el cargo adicional al monedero del comprador
                     comprador.Monedero += (decimal)cargoAdicional;
                     await this.context.SaveChangesAsync();
                 }
@@ -318,8 +426,129 @@ namespace MvcProyectoRentACar.Repositories
             await this.ActualizarKilometraje(idreserva, newkilometraje);
             await this.CambiarAEstadoFinalizadoReservaAsync(idreserva);
         }
+        #endregion
+        #region COMPRADOR
+        public async Task<List<VistaCoche>> FindAllCochesAsync()
+        {
+            var consulta = from datos in this.context.VistaCoches
+                           orderby datos.PrecioKilometros descending
+                           select datos;
+            return await consulta.ToListAsync();
+        }
 
+        public async Task<List<VistaCoche>> FilterByPrecio(int valor)
+        {
+            if (valor == 0)
+            {
+                var consulta = from datos in this.context.VistaCoches
+                               orderby datos.PrecioKilometros ascending
+                               select datos;
+                return await consulta.ToListAsync();
+            }
+            else
+            {
+                var consulta = from datos in this.context.VistaCoches
+                               orderby datos.PrecioKilometros descending
+                               select datos;
+                return await consulta.ToListAsync();
+            }
 
+        }
+
+        public async Task<VistaCoche> GetVistaCocheAsync(int idcoche)
+        {
+            var consulta = from datos in this.context.VistaCoches
+                           where datos.IdCoche == idcoche
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task<Coche> GetCocheAsync(int idcoche)
+        {
+            var consulta = from datos in this.context.Coches
+                           where datos.IdCoche == idcoche
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task CompraCocheAsync(int idusuario, int idcoche, DateTime fechainicio, DateTime fechafin, double precio, bool kilometraje)
+        {
+            //se comprueba en el controller si ese coche esta disponible 
+            int idReserva = 1;
+            if (this.context.Reservas.Any())
+            {
+                idReserva = (from datos in this.context.Reservas
+                             select datos.IdReserva).Max() + 1;
+            }
+            Reserva res = new Reserva();
+            res.IdReserva = idReserva;
+            res.IdCoche = idcoche;
+            res.IdUsuario = idusuario;
+            res.FechaInicio = fechainicio;
+            res.FechaFin = fechafin;
+            res.Precio = precio;
+            res.Kilometraje = kilometraje;
+            if (DateTime.Now.Date == fechainicio.Date)
+            {
+                res.IdEstadoReserva = 1;
+            }
+            else
+            {
+                res.IdEstadoReserva = 3;
+            }
+            await this.context.Reservas.AddAsync(res);
+            await this.context.SaveChangesAsync();
+
+        }
+
+        public async Task<bool> ComprobarDisponibilidadCocheAsync(int idcoche, DateTime fechainicio, DateTime fechafin)
+        {
+            var reservas = await (from reserva in this.context.Reservas
+                                  where reserva.IdCoche == idcoche &&
+                                        ((fechainicio >= reserva.FechaInicio && fechainicio <= reserva.FechaFin) ||
+                                         (fechafin >= reserva.FechaInicio && fechafin <= reserva.FechaFin) ||
+                                         (fechainicio <= reserva.FechaInicio && fechafin >= reserva.FechaFin))
+                                  select reserva).ToListAsync();
+
+            return !reservas.Any();
+        }
+
+        public async Task<List<Compra>> GetComprasUsuarioAsync(int idusuario, string estadoReserva = null)
+        {
+            List<Reserva> reservas = await (from datos in this.context.Reservas
+                                            where datos.IdUsuario == idusuario
+                                            select datos).ToListAsync();
+            List<Compra> compras = new List<Compra>();
+            List<EstadoReserva> estadoreserva = await this.GetEstadoReservaAsync();
+            foreach (Reserva reserva in reservas)
+            {
+                Coche coche = await this.GetCocheAsync(reserva.IdCoche);
+
+                Compra compra = new Compra();
+                compra.IdCoche = coche.IdCoche;
+                compra.Marca = coche.Marca;
+                compra.Modelo = coche.Modelo;
+                compra.Imagen = coche.Imagen;
+                compra.FechaInicio = reserva.FechaInicio;
+                compra.FechaFin = reserva.FechaFin;
+                compra.Precio = reserva.Precio;
+                var estado = estadoreserva.FirstOrDefault(e => e.IdEstadoReserva == reserva.IdEstadoReserva);
+                if (estado != null)
+                {
+                    compra.EstadoReserva = estado.EstadoDescripcion;
+                }
+                compras.Add(compra);
+            }
+
+            if (!string.IsNullOrEmpty(estadoReserva))
+            {
+                compras = compras.Where(c => c.EstadoReserva == estadoReserva).ToList();
+            }
+
+            return compras;
+        }
+
+        #endregion
 
     }
 }

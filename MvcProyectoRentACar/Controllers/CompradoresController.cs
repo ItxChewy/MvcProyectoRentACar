@@ -7,9 +7,9 @@ namespace MvcProyectoRentACar.Controllers
 {
     public class CompradoresController : Controller
     {
-        private RepositoryComprador repo;
+        private IRepositoryRentACar repo;
 
-        public CompradoresController(RepositoryComprador repo)
+        public CompradoresController(IRepositoryRentACar repo)
         {
             this.repo = repo;
         }
@@ -86,7 +86,6 @@ namespace MvcProyectoRentACar.Controllers
         public async Task<IActionResult> GetReservasPorCocheComprador(int idcoche)
         {
             List<VistaReserva> reservas = await this.repo.GetVistaReservasAsync();
-            // Filter reservations for the specific car.
             reservas = reservas.Where(r => r.IdCoche == idcoche).ToList();
 
             string color = "#FF5733";
@@ -95,7 +94,6 @@ namespace MvcProyectoRentACar.Controllers
             {
                 title = $"{r.Marca} {r.Modelo}",
                 start = r.FechaInicio.ToString("yyyy-MM-dd"),
-                // FullCalendar requires that the end date be exclusive; adding one day.
                 end = r.FechaFin.AddDays(1).ToString("yyyy-MM-dd"),
                 color = color
             }).ToList();

@@ -7,8 +7,8 @@ namespace MvcProyectoRentACar.Controllers
 {
     public class SesionController : Controller
     {
-        private RepositorySesion repo;
-        public SesionController(RepositorySesion repo)
+        private IRepositoryRentACar repo;
+        public SesionController(IRepositoryRentACar repo)
         {
             this.repo = repo;
         }

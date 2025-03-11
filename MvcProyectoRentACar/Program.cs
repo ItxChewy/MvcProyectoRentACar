@@ -21,10 +21,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(60);
 });
 
-builder.Services.AddTransient<RepositorySesion>();
-builder.Services.AddTransient<RepositoryComprador>();
-builder.Services.AddTransient<RepositoryVendedor>();
-builder.Services.AddTransient<RepositoryFilter>();
+builder.Services.AddTransient<IRepositoryRentACar,RepositoryRentACar>();
+
 
 builder.Services.AddTransient<ViewDataFilter>();
 
