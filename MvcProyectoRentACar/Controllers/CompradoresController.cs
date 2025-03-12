@@ -118,6 +118,7 @@ namespace MvcProyectoRentACar.Controllers
                 VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
                 TempData["SuccessMessage"] = "Reserva realizada correctamente.";
                 return View(coche);
+                //return RedirectToAction("Coches");
             }
             else
             {

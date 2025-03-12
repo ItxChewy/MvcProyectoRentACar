@@ -42,7 +42,7 @@ namespace MvcProyectoRentACar.Controllers
 
             TempData["SuccessMessage"] = "Coche insertado correctamente.";
 
-            return View();
+            return RedirectToAction("Coches", "Vendedores");
         }
 
         public async Task<IActionResult> UpdateCoche(int idcoche)
@@ -64,7 +64,8 @@ namespace MvcProyectoRentACar.Controllers
             TempData["SuccessMessage"] = "Coche actualizado correctamente.";
             ViewData["gamas"] = await this.repo.GetGamasAsync();
             Coche coche = await this.repo.DetailsCocheAsync(idcoche);
-            return View(coche);
+            return RedirectToAction("Coches", "Vendedores");
+            //return View(coche);
         }
 
         public async Task<IActionResult> DeleteCoche(int idcoche)
