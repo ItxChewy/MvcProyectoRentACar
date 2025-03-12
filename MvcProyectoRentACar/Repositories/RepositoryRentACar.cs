@@ -85,8 +85,31 @@ namespace MvcProyectoRentACar.Repositories
         }
         public async Task<Usuario> LoginAsync(string email, string password)
         {
-            return await this.context.Usuarios
-                .FirstOrDefaultAsync(i => i.Email == email && i.Password == password);
+            var consulta = from datos in this.context.Usuarios
+                           where datos.Email == email
+                           select datos;
+            Usuario user = await consulta.FirstOrDefaultAsync();
+            if(user == null)
+            {
+                return null;
+            }
+            else
+            {
+                string salt = user.Salt;
+                byte[] temp = HelperCryptography.EncryptPassword(password, salt);
+                byte[] passBytes = user.PassBytes;
+                bool response = HelperCryptography.CompararArrays(temp, passBytes);
+                if(response == true)
+                {
+                    return user;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+                //return await this.context.Usuarios
+                //    .FirstOrDefaultAsync(i => i.Email == email && i.Password == password);
         }
 
         public async Task<List<Rol>> GetRolesAsync()

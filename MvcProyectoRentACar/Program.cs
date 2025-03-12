@@ -27,7 +27,7 @@ builder.Services.AddTransient<IRepositoryRentACar,RepositoryRentACar>();
 builder.Services.AddTransient<ViewDataFilter>();
 
 
-string connectionString = builder.Configuration.GetConnectionString("SqlRentACarCasa");
+string connectionString = builder.Configuration.GetConnectionString("SqlRentACar");
 builder.Services.AddDbContext<RentACarContext>
     (options => options.UseSqlServer(connectionString));
 var app = builder.Build();
