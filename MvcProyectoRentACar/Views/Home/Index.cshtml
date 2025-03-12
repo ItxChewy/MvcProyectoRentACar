@@ -31,7 +31,7 @@
 </head>
 
 <body>
-    @if (Context.Session.GetInt32("rol") == 2 || Context.Session.GetInt32("rol") == null)
+    @if (!User.Identity.IsAuthenticated || User.IsInRole("2"))
     {
         <!-- Search Start -->
         <!-- Search End -->
@@ -66,7 +66,7 @@
         </div>
         <!-- Footer End -->
     }
-    else if (Context.Session.GetInt32("rol") == 1)
+    else if (User.IsInRole("1"))
     {
         <script>
             document.addEventListener('DOMContentLoaded', function() {

@@ -12,9 +12,9 @@
             int filtroActual = (int)(ViewData["Filtro"] ?? 0);
         }
         <div class="mb-3">
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 0 })" class="btn btn-primary @(filtroActual == 0 ? "active" : "")">Todas</a>
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 1 })" class="btn btn-primary @(filtroActual == 1 ? "active" : "")">Con Kilometraje</a>
-            <a href="@Url.Action("ComprobarKilometraje", "Vendedores", new { filtro = 2 })" class="btn btn-primary @(filtroActual == 2 ? "active" : "")">Km Ilimitados</a>
+            <button type="button" class="btn filter-btn @(filtroActual == 0 ? "btn-primary" : "btn-secondary")" data-filtro="0">Todas</button>
+            <button type="button" class="btn filter-btn @(filtroActual == 1 ? "btn-primary" : "btn-secondary")" data-filtro="1">Con Kilometraje</button>
+            <button type="button" class="btn filter-btn @(filtroActual == 2 ? "btn-primary" : "btn-secondary")" data-filtro="2">Km Ilimitados</button>
         </div>
 
         <div id="tablaReservas">
@@ -52,25 +52,49 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Mostrar modal de éxito si existe
             if ($('#successModal').length) {
                 $('#successModal').modal('show');
             }
 
             // Mostrar modal de kilometraje si viene del warning
-            $('#confirmButton').on('click', function() {
+            $('#confirmButton').on('click', function () {
                 $('#warningModal').modal('hide');
                 $('#comprobarKmsModal').modal('show');
             });
 
-            // Si existe un ID de reserva del TempData, mostrar el modal
+            // Si existe un ID de reserva en TempData, mostrar el modal
         @if (TempData["IdReservaKm"] != null)
         {
             <text>
-                    $('#comprobarKmsModal').modal('show');
+                        $('#comprobarKmsModal').modal('show');
             </text>
         }
+
+            // Manejo de filtros con AJAX
+            $('.filter-btn').on('click', function () {
+                var filtro = $(this).attr('data-filtro');
+
+                // Actualizar clases de los botones
+                $('.filter-btn').removeClass('btn-primary').addClass('btn-secondary');
+                $(this).removeClass('btn-secondary').addClass('btn-primary');
+
+                // Realizar la solicitud AJAX para actualizar la tabla de reservas
+                $.ajax({
+                    url: '@Url.Action("ComprobarKilometraje", "Vendedores")',
+                    type: 'GET',
+                    data: { filtro: filtro },
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    success: function (data) {
+                        $('#tablaReservas').html(data);
+                    },
+                    error: function (error) {
+                        console.error('Error al cargar el filtro:', error);
+                    }
+                });
+            });
         });
     </script>
 }
+

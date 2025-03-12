@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MvcProyectoRentACar.Filters;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Repositories;
@@ -13,7 +14,7 @@ namespace MvcProyectoRentACar.Controllers
             this.repo = repo;
         }
 
-
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> InsertCoche()
         {
             ViewData["marchas"] = await this.repo.GetMarchasAsync();
@@ -22,7 +23,7 @@ namespace MvcProyectoRentACar.Controllers
 
             return View();
         }
-
+        [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> InsertCoche(string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
             int idgama, int kilometraje, int puertas, int idcombustible,
@@ -45,6 +46,7 @@ namespace MvcProyectoRentACar.Controllers
             return RedirectToAction("Coches", "Vendedores");
         }
 
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> UpdateCoche(int idcoche)
         {
             ViewData["gamas"] = await this.repo.GetGamasAsync();
@@ -54,6 +56,7 @@ namespace MvcProyectoRentACar.Controllers
             return View(coche);
         }
 
+        [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> UpdateCoche(int idcoche, string preciokilometros, string precioilimitado, int idgama)
         {
@@ -68,6 +71,7 @@ namespace MvcProyectoRentACar.Controllers
             //return View(coche);
         }
 
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> DeleteCoche(int idcoche)
         {
             TempData["SuccessMessage"] = "Coche eliminado correctamente.";

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MvcProyectoRentACar.Filters;
 using MvcProyectoRentACar.Helpers;
 using MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Models.MvcProyectoRentACar.Models;
@@ -18,6 +19,7 @@ namespace MvcProyectoRentACar.Controllers
             return View();
         }
 
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> Coches()
         {
             TempData["WarningMessage"] = "¿Estas seguro de eliminar el coche?";
@@ -25,6 +27,7 @@ namespace MvcProyectoRentACar.Controllers
             List<VistaCoche> coches = await this.repo.GetCochesAsync();
             return View(coches);
         }
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> ManageCoche(int idcoche)
         {
             ViewData["coche"] = await this.repo.DetailsCocheAsync(idcoche);
@@ -32,7 +35,7 @@ namespace MvcProyectoRentACar.Controllers
             List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
             return View(reservas);
         }
-
+        [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> ManageCoche(int idcoche, int? setactive, int? finalizado)
         {
@@ -52,7 +55,7 @@ namespace MvcProyectoRentACar.Controllers
                 return View(reservas);
             }
         }
-
+        [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> ComprobarKilometraje(int? filtro)
         {
             List<Reserva> reservas = await this.repo.GetReservasFilterAsync();
@@ -78,7 +81,7 @@ namespace MvcProyectoRentACar.Controllers
 
             return View(reservas);
         }
-
+        [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> ComprobarKilometraje(int idreserva, int newkilometraje)
         {

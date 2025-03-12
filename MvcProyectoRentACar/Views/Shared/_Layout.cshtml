@@ -25,7 +25,8 @@
 </head>
 
 <body>
-	@if (Context.Session.GetInt32("rol") == 2 || Context.Session.GetInt32("rol") == null)
+	@await Html.PartialAsync("_WarningModal")
+	@if (!User.Identity.IsAuthenticated || User.IsInRole("2"))
 	{
 		<!-- Topbar Start -->
 		<div class="container-fluid bg-dark py-3 px-lg-5 d-none d-lg-block">
@@ -54,13 +55,16 @@
 						<div class="navbar-nav ml-auto py-0">
 							<a class="nav-item nav-link" asp-action="Index" asp-controller="Home">Home</a>
 							<a class="nav-item nav-link" asp-action="Coches" asp-controller="Compradores">Coches</a>
-							@if(Context.Session.GetInt32("rol") == null){
-								<a asp-action="Login" asp-controller="Sesion" class="nav-item nav-link">Iniciar Sesión</a>
-							}else{
-								<a asp-action="Compras" asp-controller="Compradores" class="nav-item nav-link">Mis compras</a>
-								<a asp-action="LogOut" asp-controller="Sesion" class="nav-item nav-link">Cerrar Sesion</a>
+							@if (!User.Identity.IsAuthenticated)
+							{
+								<a asp-action="Login" asp-controller="Managed" class="nav-item nav-link">Iniciar Sesión</a>
 							}
-							
+							else
+							{
+								<a asp-action="Compras" asp-controller="Compradores" class="nav-item nav-link">Mis compras</a>
+								<a asp-action="LogOut" asp-controller="Managed" class="nav-item nav-link" id="logoutLink">Cerrar Sesión</a>
+							}
+
 						</div>
 					</div>
 				</nav>
@@ -70,11 +74,10 @@
 		@RenderBody()
 		//@RenderSection("Scripts", required: false)
 	}
-	else if (Context.Session.GetInt32("rol") == 1)
+	else if (User.IsInRole("1"))
 	{
 		<!-- Topbar Start -->
 		<div class="container-fluid bg-dark py-3 px-lg-5 d-none d-lg-block">
-			
 		</div>
 		<!-- Topbar End -->
 		<!-- Navbar Start -->
@@ -93,7 +96,7 @@
 							<a class="nav-item nav-link" asp-action="ComprobarKilometraje" asp-controller="Vendedores">Comprobar km's</a>
 							<a class="nav-item nav-link" asp-action="Coches" asp-controller="Vendedores">Mis Coches</a>
 							<a class="nav-item nav-link" asp-action="InsertCoche" asp-controller="Coches">Importar Nuevo Coche</a>
-							<a asp-action="LogOut" asp-controller="Sesion" class="nav-item nav-link">Cerrar Sesion</a>
+							<a asp-action="LogOut" asp-controller="Managed" class="nav-item nav-link">Cerrar Sesion</a>
 						</div>
 					</div>
 				</nav>
@@ -101,7 +104,7 @@
 		</div>
 		<!-- Navbar End -->
 		@RenderBody()
-		
+
 	}
 
 
@@ -124,6 +127,21 @@
 	<!-- Template Javascript -->
 	<script src="~/js/main.js"></script>
 	@RenderSection("Scripts", required: false)
+	<script>
+		$(document).ready(function () {
+			$("#logoutLink").on("click", function (e) {
+				e.preventDefault();
+				var logoutUrl = $(this).attr("href");
+				// Mostrar el modal de warning
+				$("#warningModal").modal("show");
+				// Si el usuario confirma, redirigir a la URL de logout
+				$("#confirmButton").off("click").on("click", function () {
+					window.location.href = logoutUrl;
+				});
+			});
+		});
+	</script>
+
 </body>
 
 </html>

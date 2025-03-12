@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MvcProyectoRentACar.Filters;
 using MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Models.MvcProyectoRentACar.Models;
 using MvcProyectoRentACar.Repositories;
@@ -60,8 +61,6 @@ namespace MvcProyectoRentACar.Controllers
                 coches = coches.Where(c => c.Combustible.Equals(combustible, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            
-
             switch (sort)
             {
                 case "precio_asc":
@@ -75,13 +74,13 @@ namespace MvcProyectoRentACar.Controllers
             return View("Coches", coches);
         }
 
-
-        public async Task<IActionResult> DetailsCoche(int idcoche)
+        [AuthorizeUsers]
+        public async Task<IActionResult> DetailsCoche(int id)
         {
-            VistaCoche coche = await this.repo.GetVistaCocheAsync(idcoche);
+            VistaCoche coche = await this.repo.GetVistaCocheAsync(id);
             return View(coche);
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> GetReservasPorCocheComprador(int idcoche)
         {
@@ -101,10 +100,11 @@ namespace MvcProyectoRentACar.Controllers
             return Json(eventos);
         }
 
+        [AuthorizeUsers]
         [HttpPost]
         public async Task<IActionResult> DetailsCoche(int idcoche, DateTime fechainicio, DateTime fechafin, double valor, bool kilometraje)
         {
-            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            int idusuario = int.Parse(HttpContext.User.FindFirst("id").Value);
             bool disponible = await this.repo.ComprobarDisponibilidadCocheAsync(idcoche, fechainicio, fechafin);
             if(fechafin < fechainicio)
             {
@@ -128,9 +128,10 @@ namespace MvcProyectoRentACar.Controllers
             }
         }
 
+        [AuthorizeUsers]
         public async Task<IActionResult> Compras(string estadoReserva)
         {
-            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            int idusuario = int.Parse(HttpContext.User.FindFirst("id").Value);
             List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario, estadoReserva);
             ViewData["EstadoReservaSeleccionado"] = estadoReserva;
             return View(compras);
@@ -138,7 +139,7 @@ namespace MvcProyectoRentACar.Controllers
 
         public async Task<IActionResult> ComprasListPartial(string estadoReserva)
         {
-            int idusuario = (int)HttpContext.Session.GetInt32("usuarioactual");
+            int idusuario = int.Parse(HttpContext.User.FindFirst("id").Value);
             List<Compra> compras = await this.repo.GetComprasUsuarioAsync(idusuario, estadoReserva);
             return PartialView("_ComprasList", compras);
         }

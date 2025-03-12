@@ -10,12 +10,27 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body text-center mt-3" style="height:80px">
-				@TempData["WarningMessage"]
-			</div>
+			@if (TempData["WarningMessage"] == null)
+			{
+				<div class="modal-body text-center mt-3" style="height:80px">
+					¿Seguro que deseas cerrar sesión?
+				</div>
+			}else{
+				<div class="modal-body text-center mt-3" style="height:80px">
+					@TempData["WarningMessage"]
+				</div>
+			}
+
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-				<button type="button" class="btn btn-danger" id="confirmButton">@TempData["WarningMessageBtn"]</button>
+				@if (TempData["WarningMessageBtn"] == null)
+				{
+					<button type="button" class="btn btn-danger" id="confirmButton">Cerrar Sesión</button>
+				}else
+				{
+					<button type="button" class="btn btn-danger" id="confirmButton">@TempData["WarningMessageBtn"]</button>
+
+				}
 			</div>
 		</div>
 	</div>
