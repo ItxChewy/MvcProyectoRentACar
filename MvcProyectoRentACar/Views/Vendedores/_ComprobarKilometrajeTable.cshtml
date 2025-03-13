@@ -1,10 +1,5 @@
 ﻿@model List<Reserva>
-
-@if (Model.Count() == 0)
-{
-    <h3 class="text-uppercase text-center">No existen reservas</h3>
-}
-else
+@if(Model.Count() != 0)
 {
     <div class="table-responsive">
         <table class="table table-hover table-bordered">
@@ -22,7 +17,7 @@ else
                     @if (reserva.FechaFin.Date == DateTime.Today)
                     {
                         <tr>
-                            <td>@reserva.IdCoche</td>
+                            <td>@reserva.Coche.Marca @reserva.Coche.Modelo</td>
                             <td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td style="background-color: rgba(0, 128, 0, 0.25);">@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
                             <td>
@@ -33,7 +28,7 @@ else
                     else
                     {
                         <tr>
-                            <td>@reserva.IdCoche</td>
+                            <td>@reserva.Coche.Marca @reserva.Coche.Modelo</td>
                             <td>@reserva.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="bg-warning bg-opacity-25">@reserva.FechaFin.ToString("dd/MM/yyyy")</td>
                             <td><span class="text-muted">No disponible</span></td>
@@ -44,3 +39,9 @@ else
         </table>
     </div>
 }
+else
+{
+    <h3>No hay reservas de este tipo...</h3>
+}
+
+

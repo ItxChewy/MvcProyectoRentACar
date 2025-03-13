@@ -120,63 +120,66 @@ namespace MvcProyectoRentACar.Repositories
         }
 
 
-        public async Task<bool> RegisterUsuarioAsync
-            (string nombre, string email, string password, int idrol, string telefono
-            , string? apellidos, string? dni, string? carnet
-             , DateTime? fechanacimiento, string? direccion, string? passpecial
+        public async Task<bool> RegisterUsuarioAsync(string nombre, string email, string password, int idrol, string telefono
+            , string? apellidos, string? dni
+            , DateTime? fechanacimiento, string? direccion, string? passpecial
             , string? nombreempresa)
         {
-            Usuario usuario = new Usuario();
-            usuario.IdUsuario = await this.GetMaxIdUser();
-            usuario.Nombre = nombre;
-            usuario.Email = email;
-            usuario.Password = password;
-            usuario.IdRolUsuario = idrol;
-            usuario.Salt = HelperCryptography.GenerateSalt();
-            usuario.PassBytes = HelperCryptography.EncryptPassword(password, usuario.Salt);
-            this.context.Usuarios.Add(usuario);
+            try
+            {
+                Usuario usuario = new Usuario();
+                usuario.IdUsuario = await this.GetMaxIdUser();
+                usuario.Nombre = nombre;
+                usuario.Email = email;
+                usuario.Password = password;
+                usuario.IdRolUsuario = idrol;
+                usuario.Salt = HelperCryptography.GenerateSalt();
+                usuario.PassBytes = HelperCryptography.EncryptPassword(password, usuario.Salt);
+                this.context.Usuarios.Add(usuario);
 
-            if (idrol == 2)
-            {
-                Comprador comprador = new Comprador();
-                comprador.IdComprador = await this.GetMaxIdComprador();
-                comprador.IdUsuario = usuario.IdUsuario;
-                comprador.Nombre = usuario.Nombre;
-                comprador.Apellidos = apellidos;
-                comprador.Dni = dni;
-                comprador.Carnet = carnet;
-                comprador.Telefono = telefono;
-                comprador.FechaNacimiento = (DateTime)fechanacimiento;
-                comprador.Monedero = 0;
-                this.context.Compradores.Add(comprador);
-                await this.context.SaveChangesAsync();
-                return true;
-            }
-            else
-            {
-                bool check = await this.CheckVendedor();
-                if (!check && passpecial == "v123")
+                if (idrol == 2)
                 {
-                    Vendedor vendedor = new Vendedor();
-                    vendedor.IdVendedor = 1;
-                    vendedor.IdUsuario = usuario.IdUsuario;
-                    vendedor.NombreEmpresa = nombreempresa;
-                    vendedor.Direccion = direccion;
-                    vendedor.Telefono = telefono;
-                    this.context.Vendedor.Add(vendedor);
+                    Comprador comprador = new Comprador();
+                    comprador.IdComprador = await this.GetMaxIdComprador();
+                    comprador.IdUsuario = usuario.IdUsuario;
+                    comprador.Nombre = usuario.Nombre;
+                    comprador.Apellidos = apellidos;
+                    comprador.Dni = dni;
+                    comprador.Carnet = dni;
+                    comprador.Telefono = telefono;
+                    comprador.FechaNacimiento = (DateTime)fechanacimiento;
+                    comprador.Monedero = 0;
+                    this.context.Compradores.Add(comprador);
                     await this.context.SaveChangesAsync();
                     return true;
                 }
                 else
                 {
-                    System.Console.WriteLine("ya existe vendedor");
-                    return false;
+                    bool check = await this.CheckVendedor();
+                    if (!check && passpecial == "v123")
+                    {
+                        Vendedor vendedor = new Vendedor();
+                        vendedor.IdVendedor = 1;
+                        vendedor.IdUsuario = usuario.IdUsuario;
+                        vendedor.NombreEmpresa = nombreempresa;
+                        vendedor.Direccion = direccion;
+                        vendedor.Telefono = telefono;
+                        this.context.Vendedor.Add(vendedor);
+                        await this.context.SaveChangesAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-
             }
-
-
+            catch (DbUpdateException)
+            {
+                return false;
+            }
         }
+
         #endregion
         #region VENDEDOR
         public async Task<List<VistaCoche>> GetCochesAsync()
@@ -193,42 +196,76 @@ namespace MvcProyectoRentACar.Repositories
                            select datos;
             return await consulta.FirstOrDefaultAsync();
         }
-        public async Task InsertCocheAsync
-            (string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
-            int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
-            decimal preciokilometros, decimal precioilimitado)
+        public async Task<bool> InsertCocheAsync
+        (string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
+        int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
+        decimal preciokilometros, decimal precioilimitado)
         {
-            int maxId = await this.context.Coches
-                        .Select(x => x.IdCoche)
-                        .MaxAsync() + 1;
-            string fileName = maxId.ToString() + fichero.FileName.ToLower();
-            string path = this.helperPath.MapPath(fileName, Folders.Images);
-
-            using (Stream stream = new FileStream(path, FileMode.Create))
+            try
             {
-                await fichero.CopyToAsync(stream);
+                int maxId;
+                if (!await this.context.Coches.AnyAsync())
+                {
+                    maxId = 1;
+                }
+                else
+                {
+                    maxId = await this.context.Coches
+                                .Select(x => x.IdCoche)
+                                .MaxAsync() + 1;
+                }
+                string fileName = maxId.ToString() + fichero.FileName.ToLower();
+                string path = this.helperPath.MapPath(fileName, Folders.Images);
+
+                using (Stream stream = new FileStream(path, FileMode.Create))
+                {
+                    await fichero.CopyToAsync(stream);
+                }
+
+                string sql = "SP_INSERT_COCHE @MARCA, @MODELO, @MATRICULA, @IMAGEN, @ASIENTOS, @IDMARCHAS, " +
+                    "@IDGAMA, @KILOMETRAJE, @PUERTAS, @IDCOMBUSTIBLE, @IDVENDEDOR, @PRECIOKILOMETROS, @PRECIOILIMITADO";
+                var parametros = new[]
+                {
+                    new SqlParameter("@MARCA", marca),
+                    new SqlParameter("@MODELO", modelo),
+                    new SqlParameter("@MATRICULA", matricula),
+                    new SqlParameter("@IMAGEN", fileName),
+                    new SqlParameter("@ASIENTOS", asientos),
+                    new SqlParameter("@IDMARCHAS", idmarchas),
+                    new SqlParameter("@IDGAMA", idgama),
+                    new SqlParameter("@KILOMETRAJE", kilometraje),
+                    new SqlParameter("@PUERTAS", puertas),
+                    new SqlParameter("@IDCOMBUSTIBLE", idcombustible),
+                    new SqlParameter("@IDVENDEDOR", idvendedor),
+                    new SqlParameter("@PRECIOKILOMETROS", preciokilometros),
+                    new SqlParameter("@PRECIOILIMITADO", precioilimitado)
+                };
+                await this.context.Database.ExecuteSqlRawAsync(sql, parametros);
+                return true;
             }
-
-            string sql = "SP_INSERT_COCHE @MARCA, @MODELO, @MATRICULA, @IMAGEN, @ASIENTOS, @IDMARCHAS, " +
-                "@IDGAMA, @KILOMETRAJE, @PUERTAS, @IDCOMBUSTIBLE, @IDVENDEDOR, @PRECIOKILOMETROS, @PRECIOILIMITADO";
-            var parametros = new[]
+            catch (SqlException ex)
             {
-                new SqlParameter("@MARCA", marca),
-                new SqlParameter("@MODELO", modelo),
-                new SqlParameter("@MATRICULA", matricula),
-                new SqlParameter("@IMAGEN", fileName),
-                new SqlParameter("@ASIENTOS", asientos),
-                new SqlParameter("@IDMARCHAS", idmarchas),
-                new SqlParameter("@IDGAMA", idgama),
-                new SqlParameter("@KILOMETRAJE", kilometraje),
-                new SqlParameter("@PUERTAS", puertas),
-                new SqlParameter("@IDCOMBUSTIBLE", idcombustible),
-                new SqlParameter("@IDVENDEDOR", idvendedor),
-                new SqlParameter("@PRECIOKILOMETROS", preciokilometros),
-                new SqlParameter("@PRECIOILIMITADO", precioilimitado)
-            };
-            await this.context.Database.ExecuteSqlRawAsync(sql, parametros);
+                // Handle SQL specific exceptions
+                if (ex.Number == 2627) // Violation of unique key constraint
+                {
+                    throw new Exception("La matrícula ya existe en la base de datos.");
+                }
+                else if (ex.Number == 547) // Foreign key constraint violation
+                {
+                    throw new Exception("Error en las referencias: alguno de los datos seleccionados no es válido.");
+                }
+                else
+                {
+                    throw new Exception($"Error en la base de datos: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle general exceptions
+                throw new Exception($"Error al insertar el coche: {ex.Message}");
+            }
         }
+
 
         public async Task UpdateCocheAsync
             (int idcoche, int idgama, decimal preciokilometros, decimal precioilimitado)
@@ -386,7 +423,7 @@ namespace MvcProyectoRentACar.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task CambiarAEstadoActivoReservaAsync(int idreserva)
+        public async Task<bool> CambiarAEstadoActivoReservaAsync(int idreserva)
         {
             Reserva res = await this.GetReservaAsync(idreserva);
             if (res.FechaInicio != DateTime.Today)
@@ -404,6 +441,7 @@ namespace MvcProyectoRentACar.Repositories
 
             res.IdEstadoReserva = 1;
             await this.context.SaveChangesAsync();
+            return true;
         }
         public async Task CambiarAEstadoFinalizadoReservaAsync(int idreserva)
         {

@@ -17,17 +17,16 @@ namespace MvcProyectoRentACar.Repositories
         Task<List<Rol>> GetRolesAsync();
         Task<bool> RegisterUsuarioAsync
             (string nombre, string email, string password, int idrol, string telefono
-            , string? apellidos, string? dni, string? carnet
-             , DateTime? fechanacimiento, string? direccion, string? passpecial
+            , string? apellidos, string? dni,  DateTime? fechanacimiento, string? direccion, string? passpecial
             , string? nombreempresa);
         #endregion
         #region repositoryVendedor
         Task<List<VistaCoche>> GetCochesAsync();
         Task<Coche> DetailsCocheAsync(int idcoche);
-        Task InsertCocheAsync
-            (string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
-            int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
-            decimal preciokilometros, decimal precioilimitado);
+        Task<bool> InsertCocheAsync(string marca, string modelo, string matricula, IFormFile fichero, int asientos, int idmarchas,
+        int idgama, int kilometraje, int puertas, int idcombustible, int idvendedor,
+        decimal preciokilometros, decimal precioilimitado);
+
         Task UpdateCocheAsync(int idcoche, int idgama, decimal preciokilometros, decimal precioilimitado);
         Task DeleteCocheAsync(int idcoche);
         Task<List<Marchas>> GetMarchasAsync();
@@ -41,7 +40,7 @@ namespace MvcProyectoRentACar.Repositories
         Task<List<Reserva>> GetReservasPorCocheAsync(int idcoche);
         Task<List<Reserva>> GetReservasNoFinalizadasPorCocheAsync(int idcoche);
         Task<Reserva> GetReservaAsync(int idreserva);
-        Task CambiarAEstadoActivoReservaAsync(int idreserva);
+        Task<bool> CambiarAEstadoActivoReservaAsync(int idreserva);
         Task CambiarAEstadoFinalizadoReservaAsync(int idreserva);
         Task ActualizarKilometraje(int idreserva, int newkilometraje);
         Task GetCargoExcedido(int idreserva, int newkilometraje);

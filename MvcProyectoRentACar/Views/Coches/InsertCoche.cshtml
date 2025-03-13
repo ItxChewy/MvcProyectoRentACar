@@ -3,6 +3,8 @@
 	List<Gama> gamas = ViewData["gamas"] as List<Gama>;
 	List<Combustible> combustibles = ViewData["combustibles"] as List<Combustible>;
 }
+@await Html.PartialAsync("_ErrorModal")
+
 @await Html.PartialAsync("_SuccessModal")
 <div class="container">
 	<div class="card my-4">

@@ -29,22 +29,38 @@ namespace MvcProyectoRentACar.Controllers
             int idgama, int kilometraje, int puertas, int idcombustible,
             string preciokilometros, string precioilimitado)
         {
-            ViewData["marchas"] = await this.repo.GetMarchasAsync();
-            ViewData["gamas"] = await this.repo.GetGamasAsync();
-            ViewData["combustibles"] = await this.repo.GetCombustiblesAsync();
-            int idvendedor = (int)HttpContext.Session.GetInt32("usuarioactual");
+            try
+            {
+                ViewData["marchas"] = await this.repo.GetMarchasAsync();
+                ViewData["gamas"] = await this.repo.GetGamasAsync();
+                ViewData["combustibles"] = await this.repo.GetCombustiblesAsync();
 
-            decimal kilometrossanize = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
-            decimal ilimitadosanized = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
+                int idvendedor = int.Parse(HttpContext.User.FindFirst("id").Value);
 
+                decimal kilometrossanize = HelperInputSanitizer.SanitizeDecimalInput(preciokilometros);
+                decimal ilimitadosanized = HelperInputSanitizer.SanitizeDecimalInput(precioilimitado);
 
-            await this.repo.InsertCocheAsync(marca, modelo, matricula, fichero, asientos, idmarchas, idgama, kilometraje
-                , puertas, idcombustible, idvendedor, kilometrossanize, ilimitadosanized);
+                bool result = await this.repo.InsertCocheAsync(marca, modelo, matricula, fichero, asientos, idmarchas, idgama, kilometraje
+                    , puertas, idcombustible, idvendedor, kilometrossanize, ilimitadosanized);
 
-            TempData["SuccessMessage"] = "Coche insertado correctamente.";
-
-            return RedirectToAction("Coches", "Vendedores");
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Coche insertado correctamente.";
+                    return RedirectToAction("Coches", "Vendedores");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Ha ocurrido un error al insertar el coche.";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View();
+            }
         }
+
 
         [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> UpdateCoche(int idcoche)

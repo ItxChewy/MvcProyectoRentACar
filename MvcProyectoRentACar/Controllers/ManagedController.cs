@@ -66,6 +66,7 @@ namespace MvcProyectoRentACar.Controllers
             else
             {
                 ViewData["MENSAJE"] = "Nombre y/o contraseña erroneas";
+                TempData["ErrorMessage"] = "Nombre y/o contraseña incorrecta/s";
                 return View();
             }
         }
@@ -74,8 +75,6 @@ namespace MvcProyectoRentACar.Controllers
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
             TempData.Clear();
-           
-
             return RedirectToAction("Index", "Home");
         }
         public async Task<IActionResult> Register()
@@ -87,18 +86,32 @@ namespace MvcProyectoRentACar.Controllers
         [HttpPost]
         public async Task<IActionResult> Register
             (string nombre, string email, string password, int idrol, string telefono
-            , string? apellidos, string? dni, string? carnet
+            , string? apellidos, string? dni
              , DateTime? fechanacimiento, string? direccion, string? passpecial
             , string? nombreempresa)
         {
-            bool isRegistered = await this.repo.RegisterUsuarioAsync(nombre, email, password, idrol, telefono, apellidos, dni, carnet, fechanacimiento, direccion, passpecial, nombreempresa);
+            if (fechanacimiento.HasValue)
+            {
+                DateTime today = DateTime.Today;
+
+                int age = today.Year - fechanacimiento.Value.Year;
+                if (fechanacimiento.Value.Date > today.AddYears(-age)) age--;
+
+                if (age < 18)
+                {
+                    TempData["ErrorMessage"] = "Error.Usted debe ser de mayor de edad para acceder a la web.";
+                    ViewData["roles"] = await this.repo.GetRolesAsync();
+                    return View();
+                }
+            }
+            bool isRegistered = await this.repo.RegisterUsuarioAsync(nombre, email, password, idrol, telefono, apellidos, dni,fechanacimiento, direccion, passpecial, nombreempresa);
             if (isRegistered)
             {
                 return RedirectToAction("Login");
             }
             else
             {
-                ViewData["MENSAJE"] = "Error al registrar el usuario. Por favor, intente nuevamente.";
+                TempData["ErrorMessage"] = "Error al registrar usuario.Intentelo de nuevo y verifique los campos.";
                 ViewData["roles"] = await this.repo.GetRolesAsync();
                 return View();
             }

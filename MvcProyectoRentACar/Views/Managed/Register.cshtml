@@ -4,6 +4,8 @@
     List<Rol> roles = ViewData["roles"] as List<Rol>;
 }
 
+@await Html.PartialAsync("_ErrorModal")
+
 <div class="container">
     <div class="card my-4">
         <div class="card-header">
@@ -28,7 +30,9 @@
                     </div>
                     <div class="col-md-6 input-group">
                         <label for="telefono" class="form-label input-group-text">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" class="form-control" required />
+                        <input type="text" id="telefono" name="telefono" class="form-control" required
+                               pattern="^[6789]\d{8}$"
+                               title="Teléfono español válido: 9 dígitos iniciando con 6, 7, 8 o 9" />
                     </div>
                 </div>
                 <div id="additionalFields">
@@ -66,61 +70,69 @@
     </a>
 </div>
 
-<script>
-    document.getElementById('idrol').addEventListener('change', function () {
-        var selectedRole = this.value;
-        var additionalFields = document.getElementById('additionalFields');
-        var passpecialField = document.getElementById('passpecialField');
-        additionalFields.innerHTML = '';
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#errorModal').modal('show');
+        });
 
-        if (selectedRole == '2') { // Comprador
-            additionalFields.innerHTML = `
-                <div class="row mb-3">
-                    <div class="col-md-6 input-group">
-                        <label for="apellidos" class="form-label input-group-text">Apellidos:</label>
-                        <input type="text" id="apellidos" name="apellidos" class="form-control" />
-                    </div>
-                    <div class="col-md-6 input-group">
-                        <label for="dni" class="form-label input-group-text">DNI:</label>
-                        <input type="text" id="dni" name="dni" class="form-control" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6 input-group">
-                        <label for="carnet" class="form-label input-group-text">Carnet:</label>
-                        <input type="text" id="carnet" name="carnet" class="form-control" />
-                    </div>
-                    <div class="col-md-6 input-group">
-                        <label for="fechanacimiento" class="form-label input-group-text">Fecha de Nacimiento:</label>
-                        <input type="date" id="fechanacimiento" name="fechanacimiento" class="form-control" />
-                    </div>
-                </div>
-            `;
-            passpecialField.style.display = 'none';
-        } else { // Vendedor
-            additionalFields.innerHTML = `
-                <div class="row mb-3">
-                    <div class="col-md-6 input-group">
-                        <label for="nombreempresa" class="form-label input-group-text">Nombre Empresa:</label>
-                        <input type="text" id="nombreempresa" name="nombreempresa" class="form-control" />
-                    </div>
-                    <div class="col-md-6 input-group">
-                        <label for="direccion" class="form-label input-group-text">Dirección:</label>
-                        <input type="text" id="direccion" name="direccion" class="form-control" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                 <div class="col-md-6 input-group" id="passpecialField">
-                        <label for="passpecial" class="form-label input-group-text">Código Administrador:</label>
-                        <input type="text" id="passpecial" name="passpecial" class="form-control" />
-                    </div>
-                </div>
-            `;
-            passpecialField.style.display = 'block';
-        }
-    });
+        document.getElementById('idrol').addEventListener('change', function () {
+            var selectedRole = this.value;
+            var additionalFields = document.getElementById('additionalFields');
+            var passpecialField = document.getElementById('passpecialField');
+            additionalFields.innerHTML = '';
 
-    // Trigger change event to set default fields
-    document.getElementById('idrol').dispatchEvent(new Event('change'));
-</script>
+            if (selectedRole == '2') { // Comprador
+                additionalFields.innerHTML = `
+                    <div class="row mb-3">
+                        <div class="col-md-6 input-group">
+                            <label for="apellidos" class="form-label input-group-text">Apellidos:</label>
+                            <input type="text" id="apellidos" name="apellidos" class="form-control" />
+                        </div>
+                        <div class="col-md-6 input-group">
+                            <label for="dni" class="form-label input-group-text">DNI:</label>
+                            <input type="text" id="dni" name="dni" class="form-control"
+                                   pattern="^[0-9]{8}[A-Za-z]$"
+                                   title="DNI español: 8 dígitos y una letra" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 input-group">
+                            <label for="fechanacimiento" class="form-label input-group-text">Fecha de Nacimiento:</label>
+                            <input type="date" id="fechanacimiento" name="fechanacimiento" class="form-control" />
+                        </div>
+                    </div>
+                `;
+                if(passpecialField){
+                    passpecialField.style.display = 'none';
+                }
+            } else { // Vendedor
+                additionalFields.innerHTML = `
+                    <div class="row mb-3">
+                        <div class="col-md-6 input-group">
+                            <label for="nombreempresa" class="form-label input-group-text">Nombre Empresa:</label>
+                            <input type="text" id="nombreempresa" name="nombreempresa" class="form-control" />
+                        </div>
+                        <div class="col-md-6 input-group">
+                            <label for="direccion" class="form-label input-group-text">Dirección:</label>
+                            <input type="text" id="direccion" name="direccion" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 input-group" id="passpecialField">
+                            <label for="passpecial" class="form-label input-group-text">Código Administrador:</label>
+                            <input type="text" id="passpecial" name="passpecial" class="form-control" />
+                        </div>
+                    </div>
+                `;
+                var pf = document.getElementById('passpecialField');
+                if(pf){
+                    pf.style.display = 'block';
+                }
+            }
+        });
 
+        // Trigger change event to set default fields
+        document.getElementById('idrol').dispatchEvent(new Event('change'));
+    </script>
+}

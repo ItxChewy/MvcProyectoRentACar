@@ -25,7 +25,8 @@
 </head>
 
 <body>
-	@await Html.PartialAsync("_WarningModal")
+	@await Html.PartialAsync("_LogoutModal")
+	
 	@if (!User.Identity.IsAuthenticated || User.IsInRole("2"))
 	{
 		<!-- Topbar Start -->
@@ -36,6 +37,8 @@
 						<a class="text-body pr-3" href=""><i class="fa fa-phone-alt mr-2"></i>@ViewData["telefono"]</a>
 						<span class="text-body">|</span>
 						<a class="text-body px-3" href=""><i class="fa fa-envelope mr-2"></i>@ViewData["email"]</a>
+						<span class="text-body">|</span>
+						<a class="text-body px-3" href=""><i class="fa-solid fa-map-location mr-2"></i>@ViewData["direccion"]</a>
 					</div>
 				</div>
 			</div>
@@ -96,7 +99,7 @@
 							<a class="nav-item nav-link" asp-action="ComprobarKilometraje" asp-controller="Vendedores">Comprobar km's</a>
 							<a class="nav-item nav-link" asp-action="Coches" asp-controller="Vendedores">Mis Coches</a>
 							<a class="nav-item nav-link" asp-action="InsertCoche" asp-controller="Coches">Importar Nuevo Coche</a>
-							<a asp-action="LogOut" asp-controller="Managed" class="nav-item nav-link">Cerrar Sesion</a>
+							<a asp-action="LogOut" asp-controller="Managed" class="nav-item nav-link" id="logoutLink">Cerrar Sesión</a>
 						</div>
 					</div>
 				</nav>
@@ -133,9 +136,9 @@
 				e.preventDefault();
 				var logoutUrl = $(this).attr("href");
 				// Mostrar el modal de warning
-				$("#warningModal").modal("show");
+				$("#logoutModal").modal("show");
 				// Si el usuario confirma, redirigir a la URL de logout
-				$("#confirmButton").off("click").on("click", function () {
+				$("#confirmLogoutButton").off("click").on("click", function () {
 					window.location.href = logoutUrl;
 				});
 			});

@@ -35,6 +35,7 @@ namespace MvcProyectoRentACar.Controllers
             List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
             return View(reservas);
         }
+
         [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> ManageCoche(int idcoche, int? setactive, int? finalizado)
@@ -42,18 +43,31 @@ namespace MvcProyectoRentACar.Controllers
             ViewData["coche"] = await this.repo.DetailsCocheAsync(idcoche);
             ViewData["estado"] = await this.repo.GetEstadoReservaAsync();
 
-            if (setactive != null)
+            try
             {
-                await this.repo.CambiarAEstadoActivoReservaAsync((int)setactive);
-                List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
-                return View(reservas);
+                if (setactive != null)
+                {
+                    bool result = await this.repo.CambiarAEstadoActivoReservaAsync((int)setactive);
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = "La reserva ha sido activada correctamente.";
+                    }
+                }
+                else if (finalizado != null)
+                {
+                    await this.repo.CambiarAEstadoFinalizadoReservaAsync((int)finalizado);
+                    TempData["SuccessMessage"] = "La reserva ha sido finalizada correctamente.";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await this.repo.CambiarAEstadoFinalizadoReservaAsync((int)finalizado);
-                List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
-                return View(reservas);
+                // Capture and display the exception message
+                TempData["ErrorMessage"] = ex.Message;
             }
+
+            // Always reload reservations regardless of success or failure
+            List<Reserva> reservas = await this.repo.GetReservasNoFinalizadasPorCocheAsync(idcoche);
+            return View(reservas);
         }
         [AuthorizeUsers(Policy = "Admin")]
         public async Task<IActionResult> ComprobarKilometraje(int? filtro)
@@ -72,6 +86,12 @@ namespace MvcProyectoRentACar.Controllers
                 }
             }
 
+            // Load car data for each reservation
+            foreach (var reserva in reservas)
+            {
+                reserva.Coche = await this.repo.DetailsCocheAsync(reserva.IdCoche);
+            }
+
             ViewData["Filtro"] = filtro ?? 0;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -81,6 +101,7 @@ namespace MvcProyectoRentACar.Controllers
 
             return View(reservas);
         }
+
         [AuthorizeUsers(Policy = "Admin")]
         [HttpPost]
         public async Task<IActionResult> ComprobarKilometraje(int idreserva, int newkilometraje)
@@ -102,8 +123,16 @@ namespace MvcProyectoRentACar.Controllers
             {
                 reservas = reservas.Where(r => r.Kilometraje == false).ToList();
             }
+
+            // Load car data for each reservation
+            foreach (var reserva in reservas)
+            {
+                reserva.Coche = await this.repo.DetailsCocheAsync(reserva.IdCoche);
+            }
+
             return View(reservas);
         }
+
 
         public async Task<IActionResult> ConfirmarKilometraje(int idreserva)
         {
@@ -112,6 +141,7 @@ namespace MvcProyectoRentACar.Controllers
             TempData["IdReservaKm"] = idreserva;
             return RedirectToAction("ComprobarKilometraje");
         }
+
         [HttpGet]
         public async Task<IActionResult> GetReservasConCoche()
         {
