@@ -5,17 +5,27 @@ namespace MvcProyectoRentACar.Helpers
 {
     public class HelperCryptography
     {
+        //public static string GenerateSalt()
+        //{
+        //    Random random = new Random();
+        //    string salt = "";
+        //    for (int i = 1; i <= 50; i++)
+        //    {
+        //        int aleat = random.Next(1, 255);
+        //        char letra = Convert.ToChar(aleat);
+        //        salt += letra;
+        //    }
+        //    return salt;
+        //}
         public static string GenerateSalt()
         {
-            Random random = new Random();
-            string salt = "";
-            for (int i = 1; i <= 50; i++)
+            byte[] saltBytes = new byte[32]; // 32 bytes
+            using (var rng = RandomNumberGenerator.Create())
             {
-                int aleat = random.Next(1, 255);
-                char letra = Convert.ToChar(aleat);
-                salt += letra;
+                rng.GetBytes(saltBytes);
             }
-            return salt;
+            // Convert to Base64 (resulting string will be 44 characters)
+            return Convert.ToBase64String(saltBytes);
         }
         public static bool CompararArrays(byte[] a, byte[] b)
         {

@@ -18,7 +18,15 @@ namespace MvcProyectoRentACar.Filters
             if (controller != null)
             {
                 Usuario usuario = await repo.GetUsuarioAsync();
+                if (usuario == null)
+                {
+                    await next();
+                }
                 Vendedor vendedor = await repo.GetVendedorAsync(usuario.IdUsuario);
+                if (vendedor == null)
+                {
+                    await next();
+                }
 
                 controller.ViewData["nombreempresa"] = vendedor?.NombreEmpresa ?? "Empresa por defecto";
                 controller.ViewData["direccion"] = vendedor?.Direccion ?? "Dirección no disponible";
